@@ -80,8 +80,13 @@
   }
   
   .logo h1 {
+    color: #0ea5e9;
     font-size: 1.25rem;
     font-weight: 700;
+  }
+
+  svg {
+    color: #0ea5e9;
   }
   
   .user-nav {
@@ -137,6 +142,8 @@
   
   /* Dropdown */
   .dropdown {
+    border-radius: 50%;
+    border: 1.5px solid #0ea5e9;
     position: relative;
   }
   
