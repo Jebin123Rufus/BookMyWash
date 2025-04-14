@@ -79,6 +79,17 @@
     height: 4rem;
   }
   
+  #BookMyWash {
+    width: 4.5rem;
+    height: 4.5rem;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+
   .logo h1 {
     color: #0ea5e9;
     font-size: 1.25rem;
