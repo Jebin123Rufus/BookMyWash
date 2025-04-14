@@ -17,7 +17,7 @@
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   }
   
-  *, *::before, *::after {
+  *{
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -476,8 +476,7 @@
   }
   
   .filter-button.active {
-    background-color: var(--primary);
-    color: var(--primary-foreground);
+    color: var(--primary);
     border-color: var(--primary);
   }
   
