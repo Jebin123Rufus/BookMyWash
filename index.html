@@ -1,19 +1,260 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="style.css" />
-    <title>Vanillajs1</title>
-  </head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campus Laundry - Booking System</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <header class="header">
+      <div class="container header-content">
+        <div class="logo">
+          <h1>Campus Laundry</h1>
+        </div>
+        <div class="user-nav">
+          <button class="icon-button" id="notifications-button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+            <span class="sr-only">Notifications</span>
+          </button>
+          <div class="dropdown">
+            <button class="avatar-button" id="user-menu-button">
+              <div class="avatar">
+                <span>SC</span>
+              </div>
+            </button>
+            <div class="dropdown-menu" id="user-dropdown">
+              <div class="dropdown-header">
+                <p class="dropdown-title">Sarah Connor</p>
+                <p class="dropdown-subtitle">s.connor@example.com</p>
+              </div>
+              <div class="dropdown-divider"></div>
+              <ul class="dropdown-list">
+                <li class="dropdown-item">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                  <span>Profile</span>
+                </li>
+                <li class="dropdown-item">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                  <span>Settings</span>
+                </li>
+              </ul>
+              <div class="dropdown-divider"></div>
+              <div class="dropdown-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                <span>Log out</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
 
-  <body>
-    <center>
-      <h1>Vanilla JS 1</h1>
-      <p>This is workrea where we are going to do our First Frontend Project</p>
-    </center>
-
-
-    <script src="script.js"></script>
-  </body>
+    <main class="main-content container">
+      <div class="tabs">
+        <div class="tabs-list">
+          <button class="tab-button active" data-tab="book">Book a Slot</button>
+          <button class="tab-button" data-tab="mybookings">My Bookings</button>
+        </div>
+        
+        <div class="tab-content active" id="book-tab">
+          <div class="booking-layout">
+            <div class="booking-left">
+              <div class="section-header">
+                <h2>Book a Laundry Slot</h2>
+                <p class="text-muted">Select a date, time, and machine to book your laundry slot.</p>
+              </div>
+              
+              <div class="date-picker-section">
+                <h3>Select Date</h3>
+                <div class="date-picker">
+                  <button id="date-picker-button" class="date-picker-trigger">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>
+                    <span id="selected-date">Select a date</span>
+                  </button>
+                  <div id="calendar-popup" class="calendar-popup">
+                    <div class="calendar-header">
+                      <button id="prev-month" class="calendar-nav-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="m15 18-6-6 6-6"></path></svg>
+                      </button>
+                      <div id="current-month-year">April 2025</div>
+                      <button id="next-month" class="calendar-nav-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="m9 18 6-6-6-6"></path></svg>
+                      </button>
+                    </div>
+                    <div class="calendar-grid">
+                      <div class="calendar-day-header">Su</div>
+                      <div class="calendar-day-header">Mo</div>
+                      <div class="calendar-day-header">Tu</div>
+                      <div class="calendar-day-header">We</div>
+                      <div class="calendar-day-header">Th</div>
+                      <div class="calendar-day-header">Fr</div>
+                      <div class="calendar-day-header">Sa</div>
+                      <!-- Calendar days will be inserted here by JavaScript -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="time-slot-section">
+                <h3>Select Time Slot</h3>
+                <div class="select-wrapper">
+                  <select id="time-slot-select" class="select">
+                    <option value="" disabled selected>Select a time slot</option>
+                    <option value="08:00-09:00">08:00 - 09:00</option>
+                    <option value="09:00-10:00">09:00 - 10:00</option>
+                    <option value="10:00-11:00">10:00 - 11:00</option>
+                    <option value="11:00-12:00">11:00 - 12:00</option>
+                    <option value="12:00-13:00">12:00 - 13:00</option>
+                    <option value="13:00-14:00">13:00 - 14:00</option>
+                    <option value="14:00-15:00">14:00 - 15:00</option>
+                    <option value="15:00-16:00">15:00 - 16:00</option>
+                    <option value="16:00-17:00">16:00 - 17:00</option>
+                    <option value="17:00-18:00">17:00 - 18:00</option>
+                    <option value="18:00-19:00">18:00 - 19:00</option>
+                    <option value="19:00-20:00">19:00 - 20:00</option>
+                    <option value="20:00-21:00">20:00 - 21:00</option>
+                    <option value="21:00-22:00">21:00 - 22:00</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="machine-selector-section">
+                <h3>Select Machine Type</h3>
+                <div class="button-group">
+                  <button class="filter-button active" data-filter="all">All</button>
+                  <button class="filter-button" data-filter="washer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect width="18" height="20" x="3" y="2" rx="2"></rect><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+                    Washers
+                  </button>
+                  <button class="filter-button" data-filter="dryer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"></path></svg>
+                    Dryers
+                  </button>
+                </div>
+                
+                <h3>Available Machines</h3>
+                <div class="machine-grid" id="machine-grid">
+                  <!-- Machine cards will be inserted here by JavaScript -->
+                </div>
+              </div>
+            </div>
+            
+            <div class="booking-right">
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title">Booking Details</h3>
+                  <p class="card-description">Complete your booking information to reserve your laundry slot.</p>
+                </div>
+                <div class="card-content">
+                  <form id="booking-form" class="booking-form">
+                    <div class="form-group">
+                      <label for="student-id" class="form-label">Student ID</label>
+                      <input type="text" id="student-id" class="form-input" placeholder="Enter your student ID" required>
+                      <p class="form-description">Your college student identification number.</p>
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="email" class="form-label">Email</label>
+                      <input type="email" id="email" class="form-input" placeholder="Enter your email" required>
+                      <p class="form-description">We'll send booking confirmation to this email.</p>
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="notes" class="form-label">Notes (Optional)</label>
+                      <textarea id="notes" class="form-textarea" placeholder="Any special instructions or notes"></textarea>
+                    </div>
+                    
+                    <div class="booking-summary">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                      <div>
+                        <h4>Booking Summary</h4>
+                        <p>Please review your booking details before confirming.</p>
+                      </div>
+                    </div>
+                    
+                    <button type="submit" id="confirm-booking" class="button button-primary button-full">
+                      Confirm Booking
+                    </button>
+                  </form>
+                </div>
+                <div class="card-footer">
+                  <p>Cancellation is free up to 1 hour before your slot</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="tab-content" id="mybookings-tab">
+          <div class="section-header">
+            <h2>My Bookings</h2>
+            <p class="text-muted">View and manage your upcoming and past laundry bookings.</p>
+          </div>
+          
+          <div class="bookings-tabs">
+            <div class="tabs-list">
+              <button class="tab-button active" data-bookings-tab="upcoming">Upcoming (2)</button>
+              <button class="tab-button" data-bookings-tab="past">Past (2)</button>
+            </div>
+            
+            <div class="bookings-tab-content active" id="upcoming-bookings">
+              <div id="upcoming-bookings-list" class="bookings-list">
+                <!-- Upcoming bookings will be inserted here by JavaScript -->
+              </div>
+            </div>
+            
+            <div class="bookings-tab-content" id="past-bookings">
+              <div id="past-bookings-list" class="bookings-list">
+                <!-- Past bookings will be inserted here by JavaScript -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    
+    <footer class="footer">
+      <div class="container footer-content">
+        <p class="copyright">
+          &copy; 2025 Campus Laundry. All rights reserved.
+        </p>
+        <div class="footer-links">
+          <button class="button button-ghost">Help</button>
+          <button class="button button-ghost">Terms</button>
+          <button class="button button-ghost">Privacy</button>
+        </div>
+      </div>
+    </footer>
+  </div>
+  
+  <!-- Modal for cancellation confirmation -->
+  <div id="cancel-modal" class="modal">
+    <div class="modal-overlay"></div>
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>Are you sure?</h3>
+      </div>
+      <div class="modal-content">
+        <p>This will cancel your booking. This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button id="cancel-modal-close" class="button button-ghost">Cancel</button>
+        <button id="confirm-cancellation" class="button button-destructive">Confirm</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Toast notification -->
+  <div id="toast" class="toast">
+    <div class="toast-content">
+      <div class="toast-title">Notification</div>
+      <div class="toast-description">This is a notification message.</div>
+    </div>
+  </div>
+  
+  <script src="index.js"></script>
+</body>
 </html>
