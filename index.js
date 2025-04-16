@@ -659,7 +659,7 @@ document.addEventListener("DOMContentLoaded", () => {
         toast.classList.remove("active")
       }, 3000)
     }
-  })
+})
   
 
 
