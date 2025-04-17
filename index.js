@@ -1,3 +1,145 @@
+// Booking data
+const bookings = [
+  {
+    id: "b1",
+    date: "Thursday, April 15, 2025",
+    timeSlot: "10:00 - 11:00",
+    machine: {
+      id: "w1",
+      name: "Washer 1",
+      type: "washer",
+      location: "Ground Floor",
+    },
+    status: "upcoming",
+  },
+  {
+    id: "b2",
+    date: "Sunday, April 18, 2025",
+    timeSlot: "14:00 - 15:00",
+    machine: {
+      id: "d1",
+      name: "Dryer 1",
+      type: "dryer",
+      location: "Ground Floor",
+    },
+    status: "upcoming",
+  },
+  {
+    id: "b3",
+    date: "Monday, April 10, 2025",
+    timeSlot: "09:00 - 10:00",
+    machine: {
+      id: "w3",
+      name: "Washer 3",
+      type: "washer",
+      location: "First Floor",
+    },
+    status: "completed",
+  },
+  {
+    id: "b4",
+    date: "Wednesday, April 5, 2025",
+    timeSlot: "16:00 - 17:00",
+    machine: {
+      id: "d2",
+      name: "Dryer 2",
+      type: "dryer",
+      location: "First Floor",
+    },
+    status: "completed",
+  },
+]
+
+// Create booking card
+function createBookingCard(booking) {
+  const bookingCard = document.createElement("div")
+  bookingCard.classList.add("booking-card")
+  bookingCard.dataset.id = booking.id
+
+  bookingCard.innerHTML = `
+    <div class="booking-card-header">
+      <div>
+        <div class="booking-card-title">${booking.date}</div>
+        <div class="booking-card-description">${booking.timeSlot}</div>
+      </div>
+      ${
+        booking.status === "upcoming"
+          ? `
+        <button class="icon-button booking-menu-button" data-id="${booking.id}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+            <circle cx="12" cy="12" r="1"></circle>
+            <circle cx="12" cy="5" r="1"></circle>
+            <circle cx="12" cy="19" r="1"></circle>
+          </svg>
+        </button>
+      `
+          : ""
+      }
+    </div>
+    <div class="booking-card-content">
+      <div class="machine-icon-wrapper">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon" style="color: var(--primary);">
+          ${
+            booking.machine.type === "washer"
+              ? '<rect width="18" height="20" x="3" y="2" rx="2"></rect><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle>'
+              : '<path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"></path>'
+          }
+        </svg>
+      </div>
+      <div class="booking-machine-info">
+        <div class="booking-machine-name">${booking.machine.name}</div>
+        <div class="booking-machine-location">${booking.machine.location}</div>
+      </div>
+    </div>
+  `
+
+  // Add cancel booking functionality for upcoming bookings
+  if (booking.status === "upcoming") {
+    const menuButton = bookingCard.querySelector(".booking-menu-button")
+    menuButton.addEventListener("click", () => {
+      showCancelModal(booking.id)
+    })
+  }
+
+  return bookingCard
+}
+
+function generateBookingCards() {
+  const upcomingBookingsList = document.getElementById("upcoming-bookings-list");
+  const pastBookingsList = document.getElementById("past-bookings-list");
+
+  // Clear existing booking cards
+  upcomingBookingsList.innerHTML = "";
+  pastBookingsList.innerHTML = "";
+
+  // Filter bookings
+  const upcomingBookings = bookings.filter((booking) => booking.status === "upcoming");
+  const pastBookings = bookings.filter((booking) => booking.status === "completed");
+
+  // Update tab counts
+  document.querySelector('.tab-button[data-bookings-tab="upcoming"]').textContent =
+    `Upcoming (${upcomingBookings.length})`;
+  document.querySelector('.tab-button[data-bookings-tab="past"]').textContent =
+    `Past (${pastBookings.length})`;
+
+  // Generate upcoming booking cards
+  upcomingBookings.forEach((booking) => {
+    const bookingCard = createBookingCard(booking);
+    upcomingBookingsList.appendChild(bookingCard);
+  });
+
+  // Generate past booking cards
+  pastBookings.forEach((booking) => {
+    const bookingCard = createBookingCard(booking);
+    pastBookingsList.appendChild(bookingCard);
+  });
+}
+
+function addBooking(booking) {
+  bookings.push(booking);
+  generateBookingCards();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     // User dropdown
     const userMenuButton = document.getElementById("user-menu-button")
@@ -419,181 +561,7 @@ document.addEventListener("DOMContentLoaded", () => {
         })
       }, 1500)
     })
-  
-    // Booking data
-    const bookings = [
-      {
-        id: "b1",
-        date: "Thursday, April 15, 2025",
-        timeSlot: "10:00 - 11:00",
-        machine: {
-          id: "w1",
-          name: "Washer 1",
-          type: "washer",
-          location: "Ground Floor",
-        },
-        status: "upcoming",
-      },
-      {
-        id: "b2",
-        date: "Sunday, April 18, 2025",
-        timeSlot: "14:00 - 15:00",
-        machine: {
-          id: "d1",
-          name: "Dryer 1",
-          type: "dryer",
-          location: "Ground Floor",
-        },
-        status: "upcoming",
-      },
-      {
-        id: "b3",
-        date: "Monday, April 10, 2025",
-        timeSlot: "09:00 - 10:00",
-        machine: {
-          id: "w3",
-          name: "Washer 3",
-          type: "washer",
-          location: "First Floor",
-        },
-        status: "completed",
-      },
-      {
-        id: "b4",
-        date: "Wednesday, April 5, 2025",
-        timeSlot: "16:00 - 17:00",
-        machine: {
-          id: "d2",
-          name: "Dryer 2",
-          type: "dryer",
-          location: "First Floor",
-        },
-        status: "completed",
-      },
-    ]
-  
-    // Generate booking cards
-    function generateBookingCards() {
-      const upcomingBookingsList = document.getElementById("upcoming-bookings-list")
-      const pastBookingsList = document.getElementById("past-bookings-list")
-  
-      // Clear existing booking cards
-      upcomingBookingsList.innerHTML = ""
-      pastBookingsList.innerHTML = ""
-  
-      // Filter bookings
-      const upcomingBookings = bookings.filter((booking) => booking.status === "upcoming")
-      const pastBookings = bookings.filter((booking) => booking.status === "completed")
-  
-      // Update tab counts
-      document.querySelector('.tab-button[data-bookings-tab="upcoming"]').textContent =
-        `Upcoming (${upcomingBookings.length})`
-      document.querySelector('.tab-button[data-bookings-tab="past"]').textContent = `Past (${pastBookings.length})`
-  
-      // Generate upcoming booking cards
-      if (upcomingBookings.length === 0) {
-        upcomingBookingsList.innerHTML = `
-          <div class="card">
-            <div class="card-content" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2.5rem 1.5rem;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon" style="margin-bottom: 1rem; color: var(--muted-foreground);">
-                <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
-                <line x1="16" x2="16" y1="2" y2="6"></line>
-                <line x1="8" x2="8" y1="2" y2="6"></line>
-                <line x1="3" x2="21" y1="10" y2="10"></line>
-              </svg>
-              <p style="text-align: center; color: var(--muted-foreground);">You don't have any upcoming bookings.</p>
-              <button class="button button-outline" style="margin-top: 1rem;">Book a Slot</button>
-            </div>
-          </div>
-        `
-      } else {
-        upcomingBookings.forEach((booking) => {
-          const bookingCard = createBookingCard(booking)
-          upcomingBookingsList.appendChild(bookingCard)
-        })
-      }
-  
-      // Generate past booking cards
-      if (pastBookings.length === 0) {
-        pastBookingsList.innerHTML = `
-          <div class="card">
-            <div class="card-content" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2.5rem 1.5rem;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon" style="margin-bottom: 1rem; color: var(--muted-foreground);">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-              </svg>
-              <p style="text-align: center; color: var(--muted-foreground);">You don't have any past bookings.</p>
-            </div>
-          </div>
-        `
-      } else {
-        pastBookings.forEach((booking) => {
-          const bookingCard = createBookingCard(booking)
-          pastBookingsList.appendChild(bookingCard)
-        })
-      }
-    }
-  
-    // Create booking card
-    function createBookingCard(booking) {
-      const bookingCard = document.createElement("div")
-      bookingCard.classList.add("booking-card")
-      bookingCard.dataset.id = booking.id
-  
-      bookingCard.innerHTML = `
-        <div class="booking-card-header">
-          <div>
-            <div class="booking-card-title">${booking.date}</div>
-            <div class="booking-card-description">${booking.timeSlot}</div>
-          </div>
-          ${
-            booking.status === "upcoming"
-              ? `
-            <button class="icon-button booking-menu-button" data-id="${booking.id}">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
-                <circle cx="12" cy="12" r="1"></circle>
-                <circle cx="12" cy="5" r="1"></circle>
-                <circle cx="12" cy="19" r="1"></circle>
-              </svg>
-            </button>
-          `
-              : ""
-          }
-        </div>
-        <div class="booking-card-content">
-          <div class="machine-icon-wrapper">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon" style="color: var(--primary);">
-              ${
-                booking.machine.type === "washer"
-                  ? '<rect width="18" height="20" x="3" y="2" rx="2"></rect><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle>'
-                  : '<path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"></path>'
-              }
-            </svg>
-          </div>
-          <div class="booking-machine-info">
-            <div class="booking-machine-name">${booking.machine.name}</div>
-            <div class="booking-machine-location">${booking.machine.location}</div>
-          </div>
-        </div>
-      `
-  
-      // Add cancel booking functionality for upcoming bookings
-      if (booking.status === "upcoming") {
-        const menuButton = bookingCard.querySelector(".booking-menu-button")
-        menuButton.addEventListener("click", () => {
-          showCancelModal(booking.id)
-        })
-      }
-  
-      return bookingCard
-    }
-  
-    // Add booking
-    function addBooking(booking) {
-      bookings.push(booking)
-      generateBookingCards()
-    }
-  
+
     // Cancel booking
     function cancelBooking(bookingId) {
       const index = bookings.findIndex((booking) => booking.id === bookingId)
@@ -661,5 +629,61 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 })
   
+function initiatePayment() {
+  const options = {
+    key: "rzp_test_DmCYM9dC5cVIgf", // Replace with your Razorpay API key
+    amount: 50000, // Amount in paise (e.g., 50000 = ₹500)
+    currency: "INR",
+    name: "BookMyWash",
+    description: "Laundry Slot Booking Payment",
+    image: "BMW.png", // Optional: Add your logo here
+    handler: function (response) {
+      alert("Payment successful! Payment ID: " + response.razorpay_payment_id);
+
+      // Get selected details
+      const selectedDate = document.getElementById("selected-date").textContent;
+      const selectedTimeSlot = document.getElementById("time-slot-select").value;
+      const selectedMachine = document.querySelector(".machine-card.selected");
+
+      if (selectedDate && selectedTimeSlot && selectedMachine) {
+        const newBooking = {
+          id: `b${Date.now()}`, // Unique ID
+          date: selectedDate,
+          timeSlot: selectedTimeSlot,
+          machine: {
+            id: selectedMachine.dataset.id,
+            name: selectedMachine.querySelector(".machine-card-title").textContent,
+            type: selectedMachine.querySelector(".icon").innerHTML.includes("rect") ? "washer" : "dryer",
+            location: selectedMachine.querySelector(".machine-card-description").textContent,
+          },
+          status: "upcoming",
+        };
+
+        // Add the new booking
+        addBooking(newBooking);
+
+        // Switch to "My Bookings" tab
+        document.querySelector('.tab-button[data-tab="mybookings"]').click();
+      } else {
+        alert("Please select a date, time slot, and machine before confirming.");
+      }
+    },
+    prefill: {
+      name: "Sarah Connor", // Replace with dynamic user data
+      email: "s.connor@example.com", // Replace with dynamic user data
+    },
+    theme: {
+      color: "#3399cc",
+    },
+  };
+
+  const razorpay = new Razorpay(options);
+  razorpay.open();
+
+  razorpay.on("payment.failed", function (response) {
+    alert("Payment failed! Error: " + response.error.description);
+  });
+}
+
 
 

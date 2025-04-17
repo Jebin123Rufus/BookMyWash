@@ -176,7 +176,7 @@
                       </div>
                     </div>
                     
-                    <button type="submit" id="confirm-booking" class="button button-primary button-full">
+                    <button type="button" id="confirm-booking" class="button button-primary button-full" onclick="initiatePayment()">
                       Confirm Booking
                     </button>
                   </form>
@@ -256,7 +256,8 @@
     </div>
   </div>
   
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="index.js"></script>
-
+  
 </body>
 </html>

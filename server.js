@@ -1,9 +1,14 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const Razorpay = require("razorpay");
 
 const app = express();
 const PORT = 5000;
+const razorpay = new Razorpay({
+    key_id: "rzp_test_DmCYM9dC5cVIgf",
+    key_secret: "jn25gcmlXcRlOlvE1qKK8Sdl",
+  });
 
 app.use(cors());
 app.use(express.json());
@@ -38,6 +43,21 @@ app.post('/api/login', async (req, res) => {
       res.status(500).json({ message: 'Failed to save login' });
   }
 });
+
+app.post("/create-order", async (req, res) => {
+    const options = {
+      amount: 50000, // Amount in paise
+      currency: "INR",
+      receipt: "order_rcptid_11",
+    };
+  
+    try {
+      const order = await razorpay.orders.create(options);
+      res.json(order);
+    } catch (error) {
+      res.status(500).send(error);
+    }
+  });
 
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
