@@ -23,7 +23,9 @@ document.getElementById("loginForm").addEventListener("submit", async function (
           alert(data.message);
           // Save login state
           localStorage.setItem("isLoggedIn", "true");
-          localStorage.setItem("username", name); // optional
+          localStorage.setItem("username", name);
+          localStorage.setItem("email", email);
+          console.log("Email stored in localStorage:", email)
           window.location.href = "index.html";
         } else {
           alert("Login failed: " + data.message);
