@@ -1,53 +1,6 @@
 // Booking data
 const bookings = [
-  {
-    id: "b1",
-    date: "Thursday, April 15, 2025",
-    timeSlot: "10:00 - 11:00",
-    machine: {
-      id: "w1",
-      name: "Washer 1",
-      type: "washer",
-      location: "Ground Floor",
-    },
-    status: "upcoming",
-  },
-  {
-    id: "b2",
-    date: "Sunday, April 18, 2025",
-    timeSlot: "14:00 - 15:00",
-    machine: {
-      id: "d1",
-      name: "Dryer 1",
-      type: "dryer",
-      location: "Ground Floor",
-    },
-    status: "upcoming",
-  },
-  {
-    id: "b3",
-    date: "Monday, April 10, 2025",
-    timeSlot: "09:00 - 10:00",
-    machine: {
-      id: "w3",
-      name: "Washer 3",
-      type: "washer",
-      location: "First Floor",
-    },
-    status: "completed",
-  },
-  {
-    id: "b4",
-    date: "Wednesday, April 5, 2025",
-    timeSlot: "16:00 - 17:00",
-    machine: {
-      id: "d2",
-      name: "Dryer 2",
-      type: "dryer",
-      location: "First Floor",
-    },
-    status: "completed",
-  },
+
 ];
 
 // Create booking card
