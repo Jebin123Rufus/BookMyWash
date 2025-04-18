@@ -26,6 +26,8 @@
   html {
     font-family: var(--font-sans);
     background-color: var(--background);
+    background-image: url(bmw\ back\ img.avif) ;
+    background-size: cover;
     color: var(--foreground);
     font-size: 16px;
     line-height: 1.5;
