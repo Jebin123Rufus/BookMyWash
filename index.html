@@ -51,27 +51,37 @@
         
         <div class="tab-content active" id="book-tab">
           <div class="booking-layout">
+            <!-- Booking Left Section -->
             <div class="booking-left">
               <div class="section-header">
                 <h2>Book a Laundry Slot</h2>
                 <p class="text-muted">Select a date, time, and machine to book your laundry slot.</p>
               </div>
-              
+          
               <div class="date-picker-section">
                 <h3>Select Date</h3>
                 <div class="date-picker">
                   <button id="date-picker-button" class="date-picker-trigger">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                      <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
+                      <line x1="16" x2="16" y1="2" y2="6"></line>
+                      <line x1="8" x2="8" y1="2" y2="6"></line>
+                      <line x1="3" x2="21" y1="10" y2="10"></line>
+                    </svg>
                     <span id="selected-date">Select a date</span>
                   </button>
                   <div id="calendar-popup" class="calendar-popup">
                     <div class="calendar-header">
                       <button id="prev-month" class="calendar-nav-button">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="m15 18-6-6 6-6"></path></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                          <path d="m15 18-6-6 6-6"></path>
+                        </svg>
                       </button>
                       <div id="current-month-year">April 2025</div>
                       <button id="next-month" class="calendar-nav-button">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="m9 18 6-6-6-6"></path></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                          <path d="m9 18 6-6-6-6"></path>
+                        </svg>
                       </button>
                     </div>
                     <div class="calendar-grid">
@@ -87,7 +97,7 @@
                   </div>
                 </div>
               </div>
-              
+          
               <div class="time-slot-section">
                 <h3>Select Time Slot</h3>
                 <div class="select-wrapper">
@@ -110,29 +120,8 @@
                   </select>
                 </div>
               </div>
-              
-              <div class="machine-selector-section">
-                <h3>Select Machine Type</h3>
-                <div class="button-group">
-                  <button class="filter-button active" data-filter="all">All</button>
-                  <button class="filter-button" data-filter="washer">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect width="18" height="20" x="3" y="2" rx="2"></rect><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
-                    Washers
-                  </button>
-                  <button class="filter-button" data-filter="dryer">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"></path></svg>
-                    Dryers
-                  </button>
-                </div>
-                
-                <h3>Available Machines</h3>
-                <div class="machine-grid" id="machine-grid">
-                  <!-- Machine cards will be inserted here by JavaScript -->
-                </div>
-              </div>
-            </div>
-            
-            <div class="booking-right">
+          
+              <!-- Booking Details Form -->
               <div class="card">
                 <div class="card-header">
                   <h3 class="card-title">Booking Details</h3>
@@ -140,38 +129,50 @@
                 </div>
                 <div class="card-content">
                   <form id="booking-form" class="booking-form">
-                    <div class="form-group">
-                      <label for="student-id" class="form-label">Student ID</label>
-                      <input type="text" id="student-id" class="form-input" placeholder="Enter your student ID" required>
-                      <p class="form-description">Your college student identification number.</p>
-                    </div>
-                    
-                    <div class="form-group">
-                      <label for="email" class="form-label">Email</label>
-                      <input type="email" id="email" class="form-input" placeholder="Enter your email" required>
-                      <p class="form-description">We'll send booking confirmation to this email.</p>
-                    </div>
-                    
-                    <div class="form-group">
-                      <label for="notes" class="form-label">Notes (Optional)</label>
-                      <textarea id="notes" class="form-textarea" placeholder="Any special instructions or notes"></textarea>
-                    </div>
-                    
                     <div class="booking-summary">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                      </svg>
                       <div>
                         <h4>Booking Summary</h4>
                         <p>Please review your booking details before confirming.</p>
                       </div>
                     </div>
-                    
+          
                     <button type="button" id="confirm-booking" class="button button-primary button-full" onclick="initiatePayment()">
                       Confirm Booking
                     </button>
                   </form>
                 </div>
-                <div class="card-footer">
-                  <p>Cancellation is free up to 1 hour before your slot</p>
+              </div>
+            </div>
+          
+            <!-- Booking Right Section -->
+            <div class="booking-right">
+              <div class="machine-selector-section">
+                <h3>Select Machine Type</h3>
+                <div class="button-group">
+                  <button class="filter-button active" data-filter="all">All</button>
+                  <button class="filter-button" data-filter="washer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                      <rect width="18" height="20" x="3" y="2" rx="2"></rect>
+                      <circle cx="12" cy="12" r="6"></circle>
+                      <circle cx="12" cy="12" r="2"></circle>
+                    </svg>
+                    Washers
+                  </button>
+                  <button class="filter-button" data-filter="dryer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                      <path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"></path>
+                    </svg>
+                    Dryers
+                  </button>
+                </div>
+          
+                <h3>Available Machines</h3>
+                <div class="machine-grid" id="machine-grid">
+                  <!-- Machine cards will be inserted here by JavaScript -->
                 </div>
               </div>
             </div>
