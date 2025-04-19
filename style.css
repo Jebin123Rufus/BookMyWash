@@ -26,6 +26,8 @@
   html {
     font-family: var(--font-sans);
     background-color: var(--background);
+    background-image: url(bmw\ back\ img.avif) ;
+    background-size: cover;
     color: var(--foreground);
     font-size: 16px;
     line-height: 1.5;
@@ -499,6 +501,7 @@
     overflow: hidden;
     cursor: pointer;
     transition: border-color 0.2s;
+    background-color: #ffffff;
   }
   
   .machine-card.selected {
@@ -712,6 +715,7 @@
     border: 1px solid var(--border);
     border-radius: var(--radius);
     overflow: hidden;
+    background-color: #ffffff;
   }
   
   .booking-card-header {
@@ -746,6 +750,7 @@
     height: 3rem;
     border-radius: 50%;
     background-color: var(--muted);
+    border-color: #0ea5e9;
   }
   
   .booking-machine-info {

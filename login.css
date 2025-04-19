@@ -8,6 +8,8 @@
   
   body {
     background-color: #f8fafc;
+    background-image: url(bmw\ back\ img.avif);
+    background-size: cover;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -21,7 +23,7 @@
   }
   
   .login-card {
-    border: 1px solid #0ea5e9;
+    border: 1.5px solid #0ea5e9;
     background-color: white;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
