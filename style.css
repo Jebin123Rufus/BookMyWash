@@ -162,7 +162,7 @@
     position: absolute;
     top: calc(100% + 0.5rem);
     right: 0;
-    width: 14rem;
+    width: fit-content;
     background-color: var(--background);
     border: 1px solid var(--border);
     border-radius: var(--radius);
