@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const Razorpay = require("razorpay");
 
@@ -10,6 +11,7 @@ const razorpay = new Razorpay({
     key_secret: "jn25gcmlXcRlOlvE1qKK8Sdl",
   });
 
+app.use(bodyParser.json());
 app.use(cors());
 app.use(express.json());
 
@@ -20,27 +22,32 @@ mongoose.connect('mongodb://localhost:27017/bookmywash', {
 });
 
 // Mongoose schema and model for 'User-logins' in 'Users' collection
-const userLoginSchema = new mongoose.Schema({
-    name: String,
-    email: String,
-}, { collection: 'User-logins' }); // This targets the correct collection
+const userSchema = new mongoose.Schema({
+  name: String,
+  email: { type: String, unique: true },
+})
 
-const UserLogin = mongoose.model('UserLogin', userLoginSchema);
+const User = mongoose.model('User', userSchema, 'User-logins');
 
 // Route to handle login
 app.post('/api/login', async (req, res) => {
+  const { name, email } = req.body;
+
   try {
-      const { name, email } = req.body;
-      console.log("Received data:", name, email); // 👈 log inputs
+    // Check if the email already exists in the database
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(200).json({ message: 'Welcome Back to BookMyWash!! ', username: existingUser.name });
+    }
 
-      const user = new UserLogin({ name, email });
-      const savedUser = await user.save();
-      console.log("Saved user:", savedUser); // 👈 log success
+    // Save the new user to the database
+    const newUser = new User({ name, email });
+    await newUser.save();
 
-      res.status(200).json({ message: 'User login saved!' });
+    res.status(200).json({ message: 'User saved successfully.', username: newUser.name });
   } catch (error) {
-      console.error("MongoDB Save Error:", error); // 👈 print full error
-      res.status(500).json({ message: 'Failed to save login' });
+    console.error('Error saving user:', error);
+    res.status(500).json({ message: 'Internal server error.' });
   }
 });
 
