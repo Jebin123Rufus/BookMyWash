@@ -1,7 +1,17 @@
 // Booking data
-const bookings = [
+let bookings = [];
 
-];
+// Fetch bookings from backend on load
+async function fetchBookings(email) {
+  try {
+    const res = await fetch(`http://localhost:5000/api/bookings?email=${encodeURIComponent(email)}`);
+    bookings = await res.json();
+    generateBookingCards();
+  } catch (err) {
+    bookings = [];
+    generateBookingCards();
+  }
+}
 
 // Create booking card
 function createBookingCard(booking) {
@@ -10,48 +20,49 @@ function createBookingCard(booking) {
   bookingCard.dataset.id = booking.id;
 
   bookingCard.innerHTML = `
-    <div class="booking-card-header">
-      <div>
+    <div class="booking-card-header" style="display: flex; align-items: flex-start; justify-content: space-between; padding-bottom: 0.5rem;">
+      <div style="flex: 1;">
         <div class="booking-card-title">${booking.date}</div>
         <div class="booking-card-description">${booking.timeSlot}</div>
+        <div class="booking-machine-info" style="margin-top: 8px; display: flex; align-items: center;">
+          <div>
+            <div class="booking-machine-name" style="font-weight: 500;">${booking.machine.name}</div>
+            <div class="booking-machine-location" style="font-size: 0.85em; color: #64748b;">${booking.machine.location}</div>
+          </div>
+          <div class="machine-icon-wrapper" style="margin-left: 12px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon" style="color: var(--primary);">
+              ${
+                booking.machine.type === "washer"
+                  ? '<rect width="18" height="20" x="3" y="2" rx="2"></rect><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle>'
+                  : '<path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"></path>'
+              }
+            </svg>
+          </div>
+        </div>
       </div>
-      ${
-        booking.status === "upcoming"
-          ? `
-        <button class="icon-button booking-menu-button" data-id="${booking.id}">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
-            <circle cx="12" cy="12" r="1"></circle>
-            <circle cx="12" cy="5" r="1"></circle>
-            <circle cx="12" cy="19" r="1"></circle>
-          </svg>
-        </button>
-      `
-          : ""
-      }
+      <div class="booking-qr" style="margin-left: 16px; display: flex; align-items: flex-start; height: 100%;"><canvas id="qr-${booking.id}" style="width:128px;height:128px;"></canvas></div>
     </div>
-    <div class="booking-card-content">
-      <div class="machine-icon-wrapper">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon" style="color: var(--primary);">
-          ${
-            booking.machine.type === "washer"
-              ? '<rect width="18" height="20" x="3" y="2" rx="2"></rect><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle>'
-              : '<path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"></path>'
-          }
-        </svg>
-      </div>
-      <div class="booking-machine-info">
-        <div class="booking-machine-name">${booking.machine.name}</div>
-        <div class="booking-machine-location">${booking.machine.location}</div>
-      </div>
-    </div>
+    <!-- Remove extra content and whitespace below header -->
   `;
 
-  // Add cancel booking functionality for upcoming bookings
+  // Generate QR code for upcoming bookings
   if (booking.status === "upcoming") {
-    const menuButton = bookingCard.querySelector(".booking-menu-button");
-    menuButton.addEventListener("click", () => {
-      showCancelModal(booking.id);
-    });
+    setTimeout(() => {
+      const qrCanvas = bookingCard.querySelector(`#qr-${booking.id}`);
+      if (qrCanvas) {
+        const qrContent = booking.qrData || JSON.stringify({
+          id: booking.id,
+          date: booking.date,
+          timeSlot: booking.timeSlot,
+          machine: booking.machine,
+        });
+        new QRious({
+          element: qrCanvas,
+          value: qrContent,
+          size: 128 // Enlarged QR size
+        });
+      }
+    }, 0);
   }
 
   return bookingCard;
@@ -96,12 +107,77 @@ function generateBookingCards() {
   });
 }
 
-function addBooking(booking) {
-  bookings.push(booking);
-  generateBookingCards();
+// Add booking to backend
+async function addBooking(booking) {
+  // Generate QR data
+  const qrData = JSON.stringify({
+    id: booking.id,
+    date: booking.date,
+    timeSlot: booking.timeSlot,
+    machine: booking.machine,
+  });
+  booking.qrData = qrData;
+
+  // Save to backend
+  await fetch('http://localhost:5000/api/bookings', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(booking)
+  });
+
+  // Refetch bookings to update UI
+  await fetchBookings(booking.email);
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+// Utility to parse slot end time and return a JS Date object for slot end + 10 minutes
+function getSlotExpiryDate(booking) {
+  // booking.date is like 'Thursday, April 24, 2025'
+  // booking.timeSlot is like '10:00-11:00'
+  const dateStr = booking.date;
+  const slotEnd = booking.timeSlot.split('-')[1]; // '11:00'
+  // Try to parse the date and time robustly
+  // Convert to a format like 'April 24, 2025 11:00'
+  const dateParts = dateStr.split(', ');
+  // dateParts[1] = 'April 24', dateParts[2] = '2025'
+  const dateForParse = `${dateParts[1]}, ${dateParts[2]} ${slotEnd}`;
+  let dateObj = new Date(dateForParse);
+  // If parsing failed, fallback to Date(dateStr + ' ' + slotEnd)
+  if (isNaN(dateObj.getTime())) {
+    dateObj = new Date(dateStr + ' ' + slotEnd);
+  }
+  // Add 10 minutes for expiry
+  dateObj.setMinutes(dateObj.getMinutes() + 10);
+  return dateObj;
+}
+
+// Remove expired bookings from UI and DB, alert user if any expired
+async function removeExpiredBookingsAndAlert(email) {
+  const now = new Date();
+  // Use localStorage to track which expired bookings have been alerted
+  let alertedIds = JSON.parse(localStorage.getItem('expiredBookingAlerts') || '[]');
+  const expired = bookings.filter(b => {
+    if (b.status !== 'upcoming') return false;
+    const expiry = getSlotExpiryDate(b);
+    return now > expiry && !alertedIds.includes(b._id);
+  });
+  if (expired.length > 0) {
+    // Format message for each expired booking
+    const msg = expired.map(b => `• ${b.date} (${b.timeSlot})`).join('\n');
+    alert(`The following bookings have expired and will be removed:\n${msg}`);
+    // Remove from DB
+    for (const b of expired) {
+      await fetch(`http://localhost:5000/api/bookings/${b._id}`, { method: 'DELETE' });
+      alertedIds.push(b._id);
+    }
+    // Remove from local array
+    bookings = bookings.filter(b => !expired.includes(b));
+    generateBookingCards();
+    // Save alerted IDs so the same alert doesn't show again
+    localStorage.setItem('expiredBookingAlerts', JSON.stringify(alertedIds));
+  }
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
   // Redirect to login page if not logged in
   if (!localStorage.getItem("isLoggedIn")) {
     window.location.href = "login.html";
@@ -505,7 +581,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const bookingForm = document.getElementById("booking-form");
   const confirmBookingButton = document.getElementById("confirm-booking");
 
-  bookingForm.addEventListener("submit", (event) => {
+  bookingForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     // Get form values
@@ -548,7 +624,7 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
 
     // Simulate API call
-    setTimeout(() => {
+    setTimeout(async () => {
       // Reset form
       bookingForm.reset();
       selectedDate = null;
@@ -571,7 +647,7 @@ document.addEventListener("DOMContentLoaded", () => {
       document.querySelector('.tab-button[data-tab="mybookings"]').click();
 
       // Add new booking to upcoming bookings
-      addBooking({
+      const newBooking = {
         id: "b" + (Math.floor(Math.random() * 1000) + 1),
         date: selectedDate ? formatDate(selectedDate) : "April 20, 2025",
         timeSlot: timeSlot,
@@ -588,7 +664,9 @@ document.addEventListener("DOMContentLoaded", () => {
             .textContent,
         },
         status: "upcoming",
-      });
+        email // <-- add this
+      };
+      await addBooking(newBooking);
     }, 1500);
   });
 
@@ -606,7 +684,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Initialize booking cards
-  generateBookingCards();
+  await fetchBookings(email);
+  await removeExpiredBookingsAndAlert(email);
 
   // Cancel modal
   const cancelModal = document.getElementById("cancel-modal");
@@ -670,37 +749,34 @@ function initiatePayment() {
     name: "BookMyWash",
     description: "Laundry Slot Booking Payment",
     image: "BMW.png",
-    handler: function (response) {
+    handler: async function (response) {
       alert("Payment successful! Payment ID: " + response.razorpay_payment_id);
 
       // Get selected details
       const selectedDate = document.getElementById("selected-date").textContent;
-      const selectedTimeSlot =
-        document.getElementById("time-slot-select").value;
+      const selectedTimeSlot = document.getElementById("time-slot-select").value;
       const selectedMachine = document.querySelector(".machine-card.selected");
+      const email = localStorage.getItem("email"); // <-- Fix: get email from localStorage
 
       if (selectedDate && selectedTimeSlot && selectedMachine) {
         const newBooking = {
-          id: `b${Date.now()}`, // Unique ID
+          id: `b${Date.now()}`,
           date: selectedDate,
           timeSlot: selectedTimeSlot,
           machine: {
             id: selectedMachine.dataset.id,
-            name: selectedMachine.querySelector(".machine-card-title")
-              .textContent,
-            type: selectedMachine
-              .querySelector(".icon")
-              .innerHTML.includes("rect")
+            name: selectedMachine.querySelector(".machine-card-title").textContent,
+            type: selectedMachine.querySelector(".icon").innerHTML.includes("rect")
               ? "washer"
               : "dryer",
-            location: selectedMachine.querySelector(".machine-card-description")
-              .textContent,
+            location: selectedMachine.querySelector(".machine-card-description").textContent,
           },
           status: "upcoming",
+          email // <-- Use the email here
         };
 
         // Add the new booking
-        addBooking(newBooking);
+        await addBooking(newBooking);
 
         // Switch to "My Bookings" tab
         document.querySelector('.tab-button[data-tab="mybookings"]').click();

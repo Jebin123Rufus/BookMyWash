@@ -29,6 +29,18 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', userSchema, 'User-logins');
 
+// Booking schema and model
+const bookingSchema = new mongoose.Schema({
+  email: String,
+  date: String,
+  timeSlot: String,
+  machine: Object,
+  status: String,
+  qrData: String, // Store the QR content (JSON string)
+  createdAt: { type: Date, default: Date.now }
+});
+const Booking = mongoose.model('Booking', bookingSchema, 'bookings');
+
 // Route to handle login
 app.post('/api/login', async (req, res) => {
   const { name, email } = req.body;
@@ -48,6 +60,38 @@ app.post('/api/login', async (req, res) => {
   } catch (error) {
     console.error('Error saving user:', error);
     res.status(500).json({ message: 'Internal server error.' });
+  }
+});
+
+// Add a booking
+app.post('/api/bookings', async (req, res) => {
+  try {
+    const booking = new Booking(req.body);
+    await booking.save();
+    res.status(201).json({ message: 'Booking saved', booking });
+  } catch (err) {
+    res.status(500).json({ message: 'Error saving booking', error: err });
+  }
+});
+
+// Get bookings for a user (all statuses)
+app.get('/api/bookings', async (req, res) => {
+  try {
+    const { email } = req.query;
+    const bookings = await Booking.find({ email }).sort({ createdAt: -1 });
+    res.json(bookings);
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching bookings', error: err });
+  }
+});
+
+// Delete a booking by _id
+app.delete('/api/bookings/:id', async (req, res) => {
+  try {
+    await Booking.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Booking deleted' });
+  } catch (err) {
+    res.status(500).json({ message: 'Error deleting booking', error: err });
   }
 });
 
