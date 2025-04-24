@@ -72,38 +72,25 @@ function generateBookingCards() {
   const upcomingBookingsList = document.getElementById(
     "upcoming-bookings-list"
   );
-  const pastBookingsList = document.getElementById("past-bookings-list");
+  const upcomingHeading = document.getElementById("upcoming-heading");
 
   // Clear existing booking cards
   upcomingBookingsList.innerHTML = "";
-  pastBookingsList.innerHTML = "";
 
   // Filter bookings
   const upcomingBookings = bookings.filter(
     (booking) => booking.status === "upcoming"
   );
-  const pastBookings = bookings.filter(
-    (booking) => booking.status === "completed"
-  );
 
-  // Update tab counts
-  document.querySelector(
-    '.tab-button[data-bookings-tab="upcoming"]'
-  ).textContent = `Upcoming (${upcomingBookings.length})`;
-  document.querySelector(
-    '.tab-button[data-bookings-tab="past"]'
-  ).textContent = `Past (${pastBookings.length})`;
+  // Update the Upcoming heading with the count
+  if (upcomingHeading) {
+    upcomingHeading.textContent = `Upcoming(${upcomingBookings.length})`;
+  }
 
   // Generate upcoming booking cards
   upcomingBookings.forEach((booking) => {
     const bookingCard = createBookingCard(booking);
     upcomingBookingsList.appendChild(bookingCard);
-  });
-
-  // Generate past booking cards
-  pastBookings.forEach((booking) => {
-    const bookingCard = createBookingCard(booking);
-    pastBookingsList.appendChild(bookingCard);
   });
 }
 
@@ -245,29 +232,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-  // Bookings tabs
-  const bookingsTabButtons = document.querySelectorAll(
-    ".tab-button[data-bookings-tab]"
-  );
-  const bookingsTabContents = document.querySelectorAll(
-    ".bookings-tab-content"
-  );
-
-  bookingsTabButtons.forEach((button) => {
-    button.addEventListener("click", function () {
-      const tabId = this.getAttribute("data-bookings-tab");
-
-      // Remove active class from all buttons and contents
-      bookingsTabButtons.forEach((btn) => btn.classList.remove("active"));
-      bookingsTabContents.forEach((content) =>
-        content.classList.remove("active")
-      );
-
-      // Add active class to clicked button and corresponding content
-      this.classList.add("active");
-      document.getElementById(`${tabId}-bookings`).classList.add("active");
-    });
-  });
+  // Remove all code related to bookingsTabButtons and bookingsTabContents
 
   // Calendar functionality
   const datePickerButton = document.getElementById("date-picker-button");

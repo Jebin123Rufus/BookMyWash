@@ -180,26 +180,17 @@
         </div>
         
         <div class="tab-content" id="mybookings-tab">
-          <div class="section-header">
+          <div class="section-header" style="text-align: center;">
             <h2>My Bookings</h2>
-            <p class="text-muted">View and manage your upcoming and past laundry bookings.</p>
+            <p class="text-muted">View and manage your upcoming laundry bookings.</p>
           </div>
           
           <div class="bookings-tabs">
-            <div class="tabs-list">
-              <button class="tab-button active" data-bookings-tab="upcoming">Upcoming </button>
-              <button class="tab-button" data-bookings-tab="past">Past </button>
-            </div>
-            
-            <div class="bookings-tab-content active" id="upcoming-bookings">
-              <div id="upcoming-bookings-list" class="bookings-list">
+            <div class="tabs-list" style="display: none;"></div>
+            <div class="bookings-tab-content active" id="upcoming-bookings" style="display: flex; flex-direction: column; align-items: center; min-height: 200px;">
+              <h3 id="upcoming-heading" style="margin-bottom: 1rem; text-align: center; font-size: 1.4rem; color: #0ea5e9; font-weight: 600; letter-spacing: 1px;">Upcoming(0)</h3>
+              <div id="upcoming-bookings-list" class="bookings-list" style="width: 100%; max-width: 600px;">
                 <!-- Upcoming bookings will be inserted here by JavaScript -->
-              </div>
-            </div>
-            
-            <div class="bookings-tab-content" id="past-bookings">
-              <div id="past-bookings-list" class="bookings-list">
-                <!-- Past bookings will be inserted here by JavaScript -->
               </div>
             </div>
           </div>
