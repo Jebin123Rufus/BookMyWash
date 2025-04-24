@@ -742,6 +742,26 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 function initiatePayment() {
+  const selectedDate = document.getElementById("selected-date").textContent;
+  const selectedTimeSlot = document.getElementById("time-slot-select").value;
+  const selectedMachine = document.querySelector(".machine-card.selected");
+
+  // Validate selections
+  if (!selectedDate || selectedDate === "Select a date") {
+    alert("Please select a date before confirming your booking.");
+    return;
+  }
+
+  if (!selectedTimeSlot) {
+    alert("Please select a time slot before confirming your booking.");
+    return;
+  }
+
+  if (!selectedMachine) {
+    alert("Please select a machine before confirming your booking.");
+    return;
+  }
+
   const options = {
     key: "rzp_test_DmCYM9dC5cVIgf", // Replace with your Razorpay API key
     amount: 5000, // Amount in paise (e.g., 50000 = ₹500)
@@ -787,8 +807,8 @@ function initiatePayment() {
       }
     },
     prefill: {
-      name: "Sarah Connor", // Replace with dynamic user data
-      email: "s.connor@example.com", // Replace with dynamic user data
+      name: "Username", // Replace with dynamic user data
+      email: "username@example.com", // Replace with dynamic user data
     },
     theme: {
       color: "#3399cc",
