@@ -13,6 +13,28 @@ async function fetchBookings(email) {
   }
 }
 
+// Fetch all bookings for slot availability
+let allBookings = [];
+
+async function fetchAllBookings() {
+  try {
+    const res = await fetch('http://localhost:5000/api/all-bookings');
+    allBookings = await res.json();
+  } catch (err) {
+    allBookings = [];
+  }
+}
+
+// Helper to check if a slot is booked for a machine
+function isSlotBooked(machineId, date, timeSlot) {
+  return allBookings.some(b =>
+    b.machine && b.machine.id === machineId &&
+    b.date === date &&
+    b.timeSlot === timeSlot &&
+    b.status === 'upcoming'
+  );
+}
+
 // Create booking card
 function createBookingCard(booking) {
   const bookingCard = document.createElement("div");
@@ -419,7 +441,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       id: "w2",
       type: "washer",
       name: "Washer 2",
-      status: "booked",
+      status: "available", // changed from "booked" to "available"
       location: "Ground Floor",
     },
     {
@@ -463,13 +485,22 @@ document.addEventListener("DOMContentLoaded", async () => {
         ? machines
         : machines.filter((machine) => machine.type === filter);
 
+    // Get selected date and time slot
+    const date = selectedDate ? formatDate(selectedDate) : null;
+    const timeSlot = document.getElementById("time-slot-select").value;
+
     // Generate machine cards
     filteredMachines.forEach((machine) => {
       const machineCard = document.createElement("div");
       machineCard.classList.add("machine-card");
       machineCard.dataset.id = machine.id;
 
-      if (machine.status !== "available") {
+      // Check if slot is booked for this machine
+      let slotBooked = false;
+      if (date && timeSlot) {
+        slotBooked = isSlotBooked(machine.id, date, timeSlot);
+      }
+      if (machine.status !== "available" || slotBooked) {
         machineCard.classList.add("unavailable");
       }
 
@@ -489,16 +520,16 @@ document.addEventListener("DOMContentLoaded", async () => {
           </div>
           <div class="machine-card-content">
             <div class="badge ${
-              machine.status === "available"
+              machine.status === "available" && !slotBooked
                 ? "badge-outline"
-                : machine.status === "booked"
+                : machine.status === "booked" || slotBooked
                 ? "badge-secondary"
                 : "badge-destructive"
             }">
               ${
-                machine.status === "available"
+                machine.status === "available" && !slotBooked
                   ? "Available"
-                  : machine.status === "booked"
+                  : machine.status === "booked" || slotBooked
                   ? "Booked"
                   : "Under Maintenance"
               }
@@ -507,7 +538,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         `;
 
       // Add click event for available machines
-      if (machine.status === "available") {
+      if (machine.status === "available" && !slotBooked) {
         machineCard.addEventListener("click", function () {
           // Remove selected class from all machine cards
           document
@@ -541,6 +572,34 @@ document.addEventListener("DOMContentLoaded", async () => {
       generateMachineCards(filter);
     });
   });
+
+  // When date or time slot changes, regenerate machine cards
+  function onDateOrTimeSlotChange() {
+    generateMachineCards(document.querySelector('.filter-button.active').getAttribute('data-filter'));
+  }
+
+  // Hook into date and time slot changes
+  document.getElementById('time-slot-select').addEventListener('change', onDateOrTimeSlotChange);
+  // When a date is picked, also update machine cards
+  const origCalendarDayClick = generateCalendarDays;
+  generateCalendarDays = function() {
+    origCalendarDayClick.apply(this, arguments);
+    document.querySelectorAll('.calendar-day').forEach(day => {
+      day.addEventListener('click', async function() {
+        await fetchAllBookings();
+        onDateOrTimeSlotChange();
+      });
+    });
+  };
+
+  // Also update on tab switch to booking tab
+  document.querySelector('.tab-button[data-tab="book"]').addEventListener('click', async function() {
+    await fetchAllBookings();
+    onDateOrTimeSlotChange();
+  });
+
+  // Initial fetch of all bookings
+  await fetchAllBookings();
 
   // Booking form submission
   const bookingForm = document.getElementById("booking-form");
@@ -576,6 +635,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     const selectedMachine = document.querySelector(".machine-card.selected");
     if (!selectedMachine) {
       showToast("Error", "Please select a machine.");
+      return;
+    }
+
+    // Check if slot is already booked (client-side check)
+    if (isSlotBooked(selectedMachine.dataset.id, selectedDate ? formatDate(selectedDate) : '', timeSlot)) {
+      showToast("Error", "This slot is already booked for the selected machine.");
       return;
     }
 
@@ -724,6 +789,11 @@ function initiatePayment() {
 
   if (!selectedMachine) {
     alert("Please select a machine before confirming your booking.");
+    return;
+  }
+
+  if (isSlotBooked(selectedMachine.dataset.id, selectedDate, selectedTimeSlot)) {
+    alert("This slot is already booked for the selected machine.");
     return;
   }
 

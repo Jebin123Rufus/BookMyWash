@@ -66,6 +66,17 @@ app.post('/api/login', async (req, res) => {
 // Add a booking
 app.post('/api/bookings', async (req, res) => {
   try {
+    const { date, timeSlot, machine } = req.body;
+    // Check if a booking already exists for this machine, date, and timeSlot
+    const existing = await Booking.findOne({
+      'machine.id': machine.id,
+      date,
+      timeSlot,
+      status: 'upcoming'
+    });
+    if (existing) {
+      return res.status(409).json({ message: 'Slot already booked for this machine.' });
+    }
     const booking = new Booking(req.body);
     await booking.save();
     res.status(201).json({ message: 'Booking saved', booking });
@@ -79,6 +90,16 @@ app.get('/api/bookings', async (req, res) => {
   try {
     const { email } = req.query;
     const bookings = await Booking.find({ email }).sort({ createdAt: -1 });
+    res.json(bookings);
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching bookings', error: err });
+  }
+});
+
+// Get all bookings (for slot availability)
+app.get('/api/all-bookings', async (req, res) => {
+  try {
+    const bookings = await Booking.find({ status: 'upcoming' });
     res.json(bookings);
   } catch (err) {
     res.status(500).json({ message: 'Error fetching bookings', error: err });
