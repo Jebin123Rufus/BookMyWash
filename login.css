@@ -24,10 +24,12 @@
   
   .login-card {
     border: 1.5px solid #0ea5e9;
-    background-color: white;
+    background: rgba(20, 40, 60, 0.45); /* semi-transparent dark blue */
+    backdrop-filter: blur(10px);
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
     padding: 32px;
+    color: #fff;
   }
   
   .login-header {
@@ -37,7 +39,7 @@
   
   .login-header h1 {
     color: #0ea5e9;
-    font-size: 24px;
+    ont-size: 24px;
     margin-bottom: 8px;
   }
 
@@ -47,8 +49,8 @@
   }
   
   .login-header p {
-    color: #64748b;
-    font-size: 14px;
+    color: #fff;
+    64748bfont-size: 14px;
   }
   
   .input-group {
@@ -59,7 +61,7 @@
     display: block;
     margin-bottom: 6px;
     font-size: 14px;
-    color: #334155;
+    color:#fff;
     font-weight: 500;
   }
   
@@ -108,4 +110,3 @@
       padding: 24px;
     }
   }
-  

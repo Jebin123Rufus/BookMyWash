@@ -6,8 +6,30 @@
     <title>Login Page</title>
     <link rel="icon" href="BMW.png">
     <link rel="stylesheet" href="login.css">
+    <style>
+        .bg-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            min-width: 100vw;
+            min-height: 100vh;
+            width: auto;
+            height: auto;
+            z-index: -1;
+            object-fit: cover;
+            background: #000;
+        }
+        .container {
+            position: relative;
+            z-index: 1;
+        }
+    </style>
 </head>
 <body>
+    <video autoplay loop muted playsinline class="bg-video">
+        <source src="login back video.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
     <div class="container">
         <div class="login-card">
             <div class="login-header">
