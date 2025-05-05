@@ -37,6 +37,51 @@
   
   body {
     min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+  
+  .bg-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    min-width: 100vw;
+    min-height: 100vh;
+    object-fit: cover;
+    z-index: -2;
+    pointer-events: none;
+    background: #000;
+  }
+
+  .bg-video::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(10, 20, 40, 0.45); /* dark transparent overlay for contrast */
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .glass-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(20, 40, 60, 0.25); /* slightly lighter for glass effect */
+    backdrop-filter: blur(10px);
+    z-index: 1;
+  }
+
+  .app-container, .main-content, .card, .booking-card, .calendar-popup, .dropdown-menu {
+    position: relative;
+    z-index: 2;
   }
   
   .sr-only {
@@ -895,4 +940,3 @@
     font-size: 0.75rem;
     color: var(--muted-foreground);
   }
-  
