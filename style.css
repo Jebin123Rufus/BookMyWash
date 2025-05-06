@@ -551,7 +551,10 @@
   }
   
   .machine-card.selected {
-    border-color: var(--primary);
+    border: 2px solid #007bff;
+    background: #e6f0ff;
+    box-shadow: 0 0 10px #007bff55;
+    transition: border 0.1s, background 0.2s, box-shadow 0.2s;
   }
   
   .machine-card.unavailable {
@@ -624,7 +627,7 @@
   
   .card-description {
     font-size: 0.875rem;
-    color: var(--muted-foreground);
+    color: var (--muted-foreground);
   }
   
   .card-content {
@@ -939,4 +942,8 @@
   .toast-description {
     font-size: 0.75rem;
     color: var(--muted-foreground);
+  }
+
+  #upcoming-heading {
+    color: #fff !important;
   }

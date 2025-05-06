@@ -27,7 +27,7 @@
     background: rgba(20, 40, 60, 0.45); /* semi-transparent dark blue */
     backdrop-filter: blur(10px);
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+    box-shadow: 0 0 32px 8px #0ea5e9cc, 0 2px 8px rgba(0,0,0,0.15); /* Slightly brighter blue glow */
     padding: 32px;
     color: #fff;
   }
