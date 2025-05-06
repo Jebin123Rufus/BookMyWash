@@ -489,6 +489,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     const date = selectedDate ? formatDate(selectedDate) : null;
     const timeSlot = document.getElementById("time-slot-select").value;
 
+    // Check if slot is in the past (for today)
+    function isSlotInPast(selectedDate, timeSlot) {
+      if (!selectedDate || !timeSlot) return false;
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const sel = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
+      if (sel.getTime() !== today.getTime()) return false;
+      // Parse slot start time
+      const slotStart = timeSlot.split("-")[0]; // e.g. '08:00'
+      const [startHour, startMin] = slotStart.split(":").map(Number);
+      const slotStartDate = new Date(sel);
+      slotStartDate.setHours(startHour, startMin, 0, 0);
+      return now >= slotStartDate;
+    }
+
     // Generate machine cards
     filteredMachines.forEach((machine) => {
       const machineCard = document.createElement("div");
@@ -499,6 +514,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       let slotBooked = false;
       if (date && timeSlot) {
         slotBooked = isSlotBooked(machine.id, date, timeSlot);
+        // Mark as unavailable if slot is in the past for today
+        if (!slotBooked && selectedDate && isSlotInPast(selectedDate, timeSlot)) {
+          slotBooked = true;
+        }
       }
       if (machine.status !== "available" || slotBooked) {
         machineCard.classList.add("unavailable");
@@ -530,8 +549,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 machine.status === "available" && !slotBooked
                   ? "Available"
                   : machine.status === "booked" || slotBooked
-                  ? "Booked"
-                  : "Under Maintenance"
+                  ? (selectedDate && isSlotInPast(selectedDate, timeSlot) ? "Not Available" : "Booked")
+                  : "Not Available"
               }
             </div>
           </div>

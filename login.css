@@ -39,7 +39,7 @@
   
   .login-header h1 {
     color: #0ea5e9;
-    ont-size: 24px;
+    font-size: 24px;
     margin-bottom: 8px;
   }
 
@@ -50,7 +50,7 @@
   
   .login-header p {
     color: #fff;
-    64748bfont-size: 14px;
+    font-size: 14px;
   }
   
   .input-group {
