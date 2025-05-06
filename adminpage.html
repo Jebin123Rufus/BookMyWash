@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>BookMyWash Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="BMW.png">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .header {
+      width: 100vw;
+      background: rgba(20,40,60,0.95);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.2rem 2rem;
+      box-sizing: border-box;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    .header .logo-title {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .header img {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: #fff;
+      object-fit: contain;
+    }
+    .header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0;
+      letter-spacing: 1px;
+      color: #0ea5e9;
+    }
+    .header .admin {
+      font-size: 1.1rem;
+      font-weight: 600;
+      background: #0ea5e9;
+      color: #fff;
+      padding: 0.5rem 1.2rem;
+      border-radius: 2rem;
+      box-shadow: 0 2px 8px rgba(14,165,233,0.12);
+    }
+    .scanner-section {
+      margin-top: 3rem;
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    #qr-reader {
+      width: 100%;
+      min-height: 320px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(14,165,233,0.10);
+      background: #fff;
+    }
+    .result-screen {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      width: 100%;
+      min-height: 320px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      z-index: 2;
+      transition: background 0.3s;
+      color: #fff;
+      font-size: 1.2rem;
+      font-weight: 500;
+      text-align: center;
+      padding: 2rem 1rem;
+      box-sizing: border-box;
+    }
+    .result-success {
+      background: #22c55e;
+      animation: fadeIn 0.3s;
+    }
+    .result-fail {
+      background: #ef4444;
+      animation: fadeIn 0.3s;
+    }
+    .tick {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      color: #fff;
+      animation: pop 0.4s;
+    }
+    .cross {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      color: #fff;
+      animation: pop 0.4s;
+    }
+    .booking-details {
+      margin-top: 1.2rem;
+      background: rgba(255,255,255,0.12);
+      border-radius: 10px;
+      padding: 1rem;
+      color: #fff;
+      font-size: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .scan-again-btn {
+      margin-top: 2rem;
+      background: #0ea5e9;
+      color: #fff;
+      border: none;
+      border-radius: 2rem;
+      padding: 0.7rem 2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(14,165,233,0.12);
+      transition: background 0.2s;
+    }
+    .scan-again-btn:hover {
+      background: #0369a1;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.98);}
+      to { opacity: 1; transform: scale(1);}
+    }
+    @keyframes pop {
+      0% { transform: scale(0.7);}
+      80% { transform: scale(1.15);}
+      100% { transform: scale(1);}
+    }
+  </style>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+<body>
+  <div class="header">
+    <div class="logo-title">
+      <img src="BMW.png" alt="BookMyWash Logo">
+      <h1>BookMyWash</h1>
+    </div>
+    <div class="admin">Admin</div>
+  </div>
+  <div class="scanner-section">
+    <div id="qr-reader"></div>
+    <div id="result-screen" class="result-screen" style="display:none"></div>
+  </div>
+  <script>
+    // Helper to show result
+    function showResult(success, booking, message) {
+      const resultScreen = document.getElementById('result-screen');
+      if (success) {
+        resultScreen.className = 'result-screen result-success';
+        resultScreen.innerHTML = `
+          <div class="tick">&#10004;</div>
+          <div>Booking verified successfully!</div>
+          <div class="booking-details">
+            <div><b>Name:</b> ${booking.machine?.name || 'N/A'}</div>
+            <div><b>Location:</b> ${booking.machine?.location || 'N/A'}</div>
+            <div><b>Date:</b> ${booking.date || 'N/A'}</div>
+            <div><b>Time Slot:</b> ${booking.timeSlot || 'N/A'}</div>
+            <div><b>Status:</b> ${booking.status || 'N/A'}</div>
+          </div>
+          <button class="scan-again-btn" onclick="scanAgain()">Scan Again</button>
+        `;
+      } else {
+        resultScreen.className = 'result-screen result-fail';
+        resultScreen.innerHTML = `
+          <div class="cross">&#10060;</div>
+          <div>${message || "Booking doesn't exist"}</div>
+          <button class="scan-again-btn" onclick="scanAgain()">Scan Again</button>
+        `;
+      }
+      resultScreen.style.display = 'flex';
+      document.getElementById('qr-reader').style.opacity = 0.2;
+    }
+
+    // Reset scanner
+    function scanAgain() {
+      document.getElementById('result-screen').style.display = 'none';
+      document.getElementById('qr-reader').style.opacity = 1;
+      window.location.reload(); // easiest way to reset html5-qrcode
+    }
+
+    // QR code scan callback
+    function onScanSuccess(decodedText, decodedResult) {
+      // Pause scanner
+      html5QrcodeScanner.clear();
+      // Try to parse QR data as JSON
+      let qrData;
+      try {
+        qrData = JSON.parse(decodedText);
+      } catch (e) {
+        showResult(false, null, "Invalid QR code format");
+        return;
+      }
+      // Send to backend for verification
+      fetch('http://localhost:5000/api/bookings?email=' + encodeURIComponent(qrData.email || ''), {
+        method: 'GET'
+      })
+      .then(res => res.json())
+      .then(bookings => {
+        // Find booking by id, date, timeSlot, machine
+        const found = bookings.find(b =>
+          b.id === qrData.id &&
+          b.date === qrData.date &&
+          b.timeSlot === qrData.timeSlot &&
+          b.machine?.id === qrData.machine?.id
+        );
+        if (found && found.status === 'upcoming') {
+          showResult(true, found, "Booking verified successfully!");
+        } else {
+          showResult(false, null, "Booking doesn't exist or has expired");
+        }
+      })
+      .catch(() => {
+        showResult(false, null, "Error verifying booking");
+      });
+    }
+
+    // Initialize QR scanner
+    const html5QrcodeScanner = new Html5QrcodeScanner(
+      "qr-reader", { fps: 10, qrbox: 250 }
+    );
+    html5QrcodeScanner.render(onScanSuccess);
+  </script>
+</body>
+</html>
