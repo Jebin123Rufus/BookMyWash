@@ -128,7 +128,7 @@
       font-size: 1rem;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
-    .scan-again-btn {
+    .scan-again-btn, #grant-free-wash-btn {
       margin: 2rem auto 0 auto;
       background: #0ea5e9;
       color: #fff;
@@ -146,7 +146,7 @@
       align-self: center;
       position: relative;
     }
-    .scan-again-btn:hover {
+    .scan-again-btn:hover, #grant-free-wash-btn:hover {
       background: #0369a1;
     }
     @keyframes fadeIn {
@@ -191,7 +191,53 @@
             <div><b>Status:</b> ${booking.status || 'N/A'}</div>
           </div>
           <button class="scan-again-btn" onclick="scanAgain()">Scan Again</button>
+          <button class="button button-primary" id="grant-free-wash-btn" style="margin-top:1rem;">Grant Free Booking</button>
         `;
+        // Add event listener for Grant Free Booking
+        setTimeout(() => {
+          const grantBtn = document.getElementById('grant-free-wash-btn');
+          if (grantBtn) {
+            grantBtn.onclick = function() {
+              const input = document.createElement('input');
+              input.type = 'password';
+              input.placeholder = 'Enter admin password';
+              input.style = 'display:block;margin:1rem auto;padding:0.5rem 1rem;font-size:1rem;border-radius:8px;border:1px solid #ccc;';
+              const okBtn = document.createElement('button');
+              okBtn.textContent = 'OK';
+              okBtn.style = 'margin-left:0.5rem;padding:0.5rem 1.2rem;border-radius:8px;background:#0ea5e9;color:#fff;border:none;font-weight:600;cursor:pointer;';
+              const cancelBtn = document.createElement('button');
+              cancelBtn.textContent = 'Cancel';
+              cancelBtn.style = 'margin-left:0.5rem;padding:0.5rem 1.2rem;border-radius:8px;background:#64748b;color:#fff;border:none;font-weight:600;cursor:pointer;';
+              const container = document.createElement('div');
+              container.style = 'text-align:center;';
+              container.appendChild(input);
+              container.appendChild(okBtn);
+              container.appendChild(cancelBtn);
+              document.body.appendChild(container);
+              input.focus();
+              okBtn.onclick = function() {
+                const pwd = input.value;
+                if (pwd === 'ritlaundry') {
+                  // Grant free wash (store in localStorage for demo)
+                  const email = booking.email;
+                  let freeWashes = JSON.parse(localStorage.getItem('freeWashes') || '{}');
+                  freeWashes[email] = (freeWashes[email] || 0) + 1;
+                  localStorage.setItem('freeWashes', JSON.stringify(freeWashes));
+                  // Broadcast change to all tabs
+                  localStorage.setItem('freeWashes_update', Date.now());
+                  alert('Free wash granted to ' + email);
+                  document.body.removeChild(container);
+                } else {
+                  alert('Password is wrong');
+                  document.body.removeChild(container);
+                }
+              };
+              cancelBtn.onclick = function() {
+                document.body.removeChild(container);
+              };
+            };
+          }
+        }, 100);
       } else {
         resultScreen.className = 'result-screen result-fail';
         resultScreen.innerHTML = `

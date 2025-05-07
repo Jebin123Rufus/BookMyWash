@@ -797,6 +797,102 @@ document.addEventListener("DOMContentLoaded", async () => {
       toast.classList.remove("active");
     }, 3000);
   }
+
+  // Free Wash button logic
+  const freeWashBtn = document.getElementById("free-wash-btn");
+  function updateFreeWashBtn() {
+    const email = localStorage.getItem("email");
+    let freeWashes = JSON.parse(localStorage.getItem("freeWashes") || '{}');
+    const count = freeWashes[email] || 0;
+    if (freeWashBtn) {
+      freeWashBtn.textContent = `Free Wash(${count})`;
+    }
+  }
+  if (freeWashBtn) {
+    updateFreeWashBtn();
+    window.addEventListener("storage", function (e) {
+      if (e.key === "freeWashes" || e.key === "freeWashes_update") updateFreeWashBtn();
+    });
+    document.querySelector('.tab-button[data-tab="book"]').addEventListener('click', updateFreeWashBtn);
+    window.addEventListener('focus', updateFreeWashBtn);
+    freeWashBtn.addEventListener("click", async function () {
+      updateFreeWashBtn(); // Always update before action
+      const email = localStorage.getItem("email");
+      let freeWashes = JSON.parse(localStorage.getItem("freeWashes") || '{}');
+      const count = freeWashes[email] || 0;
+      if (count === 0) {
+        alert("You do not have a free wash available.");
+        return;
+      }
+      // Validate selections
+      const selectedDate = document.getElementById("selected-date").textContent;
+      const selectedTimeSlot = document.getElementById("time-slot-select").value;
+      const selectedMachine = document.querySelector(".machine-card.selected");
+      if (!selectedDate || selectedDate === "Select a date") {
+        alert("Please select a date before confirming your booking.");
+        return;
+      }
+      if (!selectedTimeSlot) {
+        alert("Please select a time slot before confirming your booking.");
+        return;
+      }
+      if (!selectedMachine) {
+        alert("Please select a machine before confirming your booking.");
+        return;
+      }
+      if (isSlotBooked(selectedMachine.dataset.id, selectedDate, selectedTimeSlot)) {
+        alert("This slot is already booked for the selected machine.");
+        return;
+      }
+      // Book for free
+      const newBooking = {
+        id: `b${Date.now()}`,
+        date: selectedDate,
+        timeSlot: selectedTimeSlot,
+        machine: {
+          id: selectedMachine.dataset.id,
+          name: selectedMachine.querySelector(".machine-card-title").textContent,
+          type: selectedMachine.querySelector(".icon").innerHTML.includes("rect") ? "washer" : "dryer",
+          location: selectedMachine.querySelector(".machine-card-description").textContent,
+        },
+        status: "upcoming",
+        email
+      };
+      await addBooking(newBooking);
+      // Decrement free wash count and broadcast update
+      freeWashes[email] = count - 1;
+      localStorage.setItem("freeWashes", JSON.stringify(freeWashes));
+      localStorage.setItem("freeWashes_update", Date.now());
+      updateFreeWashBtn();
+      // Switch to My Bookings tab
+      document.querySelector('.tab-button[data-tab="mybookings"]').click();
+      alert("Free wash booking successful!");
+    });
+    // Listen for storage changes (in case admin grants while user is on page)
+    window.addEventListener("storage", function (e) {
+      if (e.key === "freeWashes") updateFreeWashBtn();
+    });
+  }
+
+  // Free Wash header button logic
+  const freeWashHeaderBtn = document.getElementById("free-wash-header-btn");
+  if (freeWashHeaderBtn) {
+    freeWashHeaderBtn.style.display = 'inline-block'; // Always visible
+    freeWashHeaderBtn.textContent = 'Free Wash (0)'; // Initial count 0
+    function updateFreeWashHeaderBtn() {
+      const email = localStorage.getItem("email");
+      let freeWashes = JSON.parse(localStorage.getItem("freeWashes") || '{}');
+      const count = freeWashes[email] || 0;
+      freeWashHeaderBtn.textContent = `Free Wash (${count})`;
+    }
+    updateFreeWashHeaderBtn();
+    window.addEventListener("storage", function (e) {
+      if (e.key === "freeWashes" || e.key === "freeWashes_update") updateFreeWashHeaderBtn();
+    });
+    document.querySelector('.tab-button[data-tab="book"]').addEventListener('click', updateFreeWashHeaderBtn);
+    window.addEventListener('focus', updateFreeWashHeaderBtn);
+  }
+
 });
 
 function initiatePayment() {
