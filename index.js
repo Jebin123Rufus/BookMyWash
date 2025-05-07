@@ -62,7 +62,7 @@ function createBookingCard(booking) {
           </div>
         </div>
       </div>
-      <div class="booking-qr" style="margin-left: 16px; display: flex; align-items: flex-start; height: 100%;"><canvas id="qr-${booking.id}" style="width:128px;height:128px;"></canvas></div>
+      <div class="booking-qr" style="margin-left: 16px; display: flex; align-items: flex-start; height: 100%;"><canvas id="qr-${booking._id}" style="width:128px;height:128px;"></canvas></div>
     </div>
     <!-- Remove extra content and whitespace below header -->
   `;
@@ -70,13 +70,14 @@ function createBookingCard(booking) {
   // Generate QR code for upcoming bookings
   if (booking.status === "upcoming") {
     setTimeout(() => {
-      const qrCanvas = bookingCard.querySelector(`#qr-${booking.id}`);
+      const qrCanvas = bookingCard.querySelector(`#qr-${booking._id}`);
       if (qrCanvas) {
         const qrContent = booking.qrData || JSON.stringify({
-          id: booking.id,
+          _id: booking._id,
           date: booking.date,
           timeSlot: booking.timeSlot,
           machine: booking.machine,
+          email: booking.email
         });
         new QRious({
           element: qrCanvas,
@@ -118,22 +119,30 @@ function generateBookingCards() {
 
 // Add booking to backend
 async function addBooking(booking) {
-  // Generate QR data
-  const qrData = JSON.stringify({
-    id: booking.id,
-    date: booking.date,
-    timeSlot: booking.timeSlot,
-    machine: booking.machine,
-  });
-  booking.qrData = qrData;
-
-  // Save to backend
-  await fetch('http://localhost:5000/api/bookings', {
+  // Save to backend (do not send id)
+  const res = await fetch('http://localhost:5000/api/bookings', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(booking)
   });
-
+  const data = await res.json();
+  if (!res.ok) return;
+  // Use MongoDB _id as booking id
+  const bookingId = data.booking._id;
+  // Generate QR data with _id
+  const qrData = JSON.stringify({
+    _id: bookingId,
+    date: booking.date,
+    timeSlot: booking.timeSlot,
+    machine: booking.machine,
+    email: booking.email
+  });
+  // Update booking with QR data
+  await fetch(`http://localhost:5000/api/bookings/${bookingId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ qrData })
+  });
   // Refetch bookings to update UI
   await fetchBookings(booking.email);
 }

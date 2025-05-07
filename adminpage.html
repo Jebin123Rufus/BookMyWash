@@ -62,6 +62,7 @@
       flex-direction: column;
       align-items: center;
       position: relative;
+      min-height: 500px; /* Increased height for better visibility */
     }
     #qr-reader {
       width: 100%;
@@ -89,6 +90,14 @@
       text-align: center;
       padding: 2rem 1rem;
       box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
     }
     .result-success {
       background: #22c55e;
@@ -120,7 +129,7 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
     .scan-again-btn {
-      margin-top: 2rem;
+      margin: 2rem auto 0 auto;
       background: #0ea5e9;
       color: #fff;
       border: none;
@@ -131,6 +140,11 @@
       cursor: pointer;
       box-shadow: 0 2px 8px rgba(14,165,233,0.12);
       transition: background 0.2s;
+      display: block;
+      max-width: 90%;
+      width: fit-content;
+      align-self: center;
+      position: relative;
     }
     .scan-again-btn:hover {
       background: #0369a1;
@@ -173,6 +187,7 @@
             <div><b>Location:</b> ${booking.machine?.location || 'N/A'}</div>
             <div><b>Date:</b> ${booking.date || 'N/A'}</div>
             <div><b>Time Slot:</b> ${booking.timeSlot || 'N/A'}</div>
+            <div><b>Email:</b> ${booking.email || 'N/A'}</div>
             <div><b>Status:</b> ${booking.status || 'N/A'}</div>
           </div>
           <button class="scan-again-btn" onclick="scanAgain()">Scan Again</button>
@@ -209,17 +224,14 @@
         return;
       }
       // Send to backend for verification
-      fetch('http://localhost:5000/api/bookings?email=' + encodeURIComponent(qrData.email || ''), {
+      fetch('http://localhost:5000/api/all-bookings', {
         method: 'GET'
       })
       .then(res => res.json())
       .then(bookings => {
-        // Find booking by id, date, timeSlot, machine
+        // Find booking by _id (MongoDB id in QR)
         const found = bookings.find(b =>
-          b.id === qrData.id &&
-          b.date === qrData.date &&
-          b.timeSlot === qrData.timeSlot &&
-          b.machine?.id === qrData.machine?.id
+          b._id === qrData._id
         );
         if (found && found.status === 'upcoming') {
           showResult(true, found, "Booking verified successfully!");
