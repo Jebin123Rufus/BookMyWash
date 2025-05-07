@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const Razorpay = require("razorpay");
 const fs = require('fs');
 const path = require('path');
+const nodemailer = require('nodemailer');
 
 const app = express();
 const PORT = 5000;
@@ -40,9 +41,31 @@ const bookingSchema = new mongoose.Schema({
   machine: Object,
   status: String,
   qrData: String, // Store the QR content (JSON string)
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
+  notified: { type: Boolean, default: false } // Add notified field
 });
 const Booking = mongoose.model('Booking', bookingSchema, 'bookings');
+
+// Nodemailer transporter (configure with your email credentials)
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'jebinrufuz@gmail.com', // <-- replace with your email
+    pass: 'aggz adsi nlgr xxpn'     // <-- replace with your app password
+  }
+});
+
+// Helper: send notification email
+async function sendBookingNotification(booking) {
+  if (!booking.email) return;
+  const mailOptions = {
+    from: 'jebinrufuz@gmail.com', // <-- replace with your email
+    to: booking.email,
+    subject: 'Laundry Slot Reminder - BookMyWash',
+    text: `Hi,\n\nThis is a reminder that your laundry slot is scheduled for:\n\nDate: ${booking.date}\nTime: ${booking.timeSlot}\nMachine: ${booking.machine?.name || ''} (${booking.machine?.location || ''})\n\nPlease be on time.\n\n- BookMyWash Team`
+  };
+  await transporter.sendMail(mailOptions);
+}
 
 // Route to handle login
 app.post('/api/login', async (req, res) => {
@@ -69,7 +92,7 @@ app.post('/api/login', async (req, res) => {
 // Add a booking
 app.post('/api/bookings', async (req, res) => {
   try {
-    const { date, timeSlot, machine } = req.body;
+    const { date, timeSlot, machine, email } = req.body;
     // Check if a booking already exists for this machine, date, and timeSlot
     const existing = await Booking.findOne({
       'machine.id': machine.id,
@@ -82,6 +105,20 @@ app.post('/api/bookings', async (req, res) => {
     }
     const booking = new Booking(req.body);
     await booking.save();
+    // Send confirmation email to user
+    if (email) {
+      try {
+        await transporter.sendMail({
+          from: 'jebinrufuz@gmail.com', // <-- replace with your email
+          to: email,
+          subject: 'Booking Confirmed - BookMyWash',
+          text: `Hi,\n\nYour laundry slot has been successfully booked!\n\nDate: ${date}\nTime: ${timeSlot}\nMachine: ${machine?.name || ''} (${machine?.location || ''})\n\nThank you for using BookMyWash!\n\n- BookMyWash Team`
+        });
+        console.log(`Booking confirmation email sent to ${email}`);
+      } catch (e) {
+        console.error('Error sending booking confirmation email:', e);
+      }
+    }
     res.status(201).json({ message: 'Booking saved', booking });
   } catch (err) {
     res.status(500).json({ message: 'Error saving booking', error: err });
@@ -193,6 +230,40 @@ app.post('/api/feedback', (req, res) => {
     res.status(500).json({ message: 'Error saving feedback', error: e });
   }
 });
+
+// Scheduler: check every 5 minutes for bookings starting in 55-65 minutes
+setInterval(async () => {
+  const now = new Date();
+  const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
+  const fiftyFiveMinLater = new Date(now.getTime() + 55 * 60 * 1000);
+  // Find bookings not yet notified, upcoming, and starting in ~1 hour
+  const bookings = await Booking.find({
+    notified: { $ne: true },
+    status: 'upcoming',
+    date: { $exists: true },
+    timeSlot: { $exists: true }
+  });
+  for (const booking of bookings) {
+    // Parse booking date and slot start time
+    const slotStart = booking.timeSlot?.split('-')[0];
+    if (!slotStart) continue;
+    const dateStr = booking.date;
+    const dateParts = dateStr.split(', ');
+    const slotDate = new Date(`${dateParts[1]}, ${dateParts[2]} ${slotStart}`);
+    if (isNaN(slotDate.getTime())) continue;
+    // If slot is in 55-65 minutes from now
+    if (slotDate > fiftyFiveMinLater && slotDate <= oneHourLater) {
+      try {
+        await sendBookingNotification(booking);
+        booking.notified = true;
+        await booking.save();
+        console.log(`Notification sent to ${booking.email} for booking ${booking._id}`);
+      } catch (e) {
+        console.error('Error sending notification:', e);
+      }
+    }
+  }
+}, 5 * 60 * 1000); // every 5 minutes
 
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
