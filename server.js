@@ -44,6 +44,16 @@ const bookingSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
   notified: { type: Boolean, default: false } // Add notified field
 });
+
+// Extend Booking schema for multiple notifications
+bookingSchema.add({
+  notified1h: { type: Boolean, default: false },
+  notified30m: { type: Boolean, default: false },
+  notified5m: { type: Boolean, default: false },
+  notifiedAfter30m: { type: Boolean, default: false },
+  notifiedAfter1h: { type: Boolean, default: false }
+});
+
 const Booking = mongoose.model('Booking', bookingSchema, 'bookings');
 
 // Nodemailer transporter (configure with your email credentials)
@@ -65,6 +75,17 @@ async function sendBookingNotification(booking) {
     text: `Hi,\n\nThis is a reminder that your laundry slot is scheduled for:\n\nDate: ${booking.date}\nTime: ${booking.timeSlot}\nMachine: ${booking.machine?.name || ''} (${booking.machine?.location || ''})\n\nPlease be on time.\n\n- BookMyWash Team`
   };
   await transporter.sendMail(mailOptions);
+}
+
+// Helper: send notification email with custom message
+async function sendCustomNotification(booking, subject, text) {
+  if (!booking.email) return;
+  await transporter.sendMail({
+    from: 'jebinrufuz@gmail.com',
+    to: booking.email,
+    subject,
+    text
+  });
 }
 
 // Route to handle login
@@ -108,15 +129,23 @@ app.post('/api/bookings', async (req, res) => {
     // Send confirmation email to user
     if (email) {
       try {
+        // Confirmation email (immediately after booking)
         await transporter.sendMail({
           from: 'jebinrufuz@gmail.com', // <-- replace with your email
           to: email,
           subject: 'Booking Confirmed - BookMyWash',
           text: `Hi,\n\nYour laundry slot has been successfully booked!\n\nDate: ${date}\nTime: ${timeSlot}\nMachine: ${machine?.name || ''} (${machine?.location || ''})\n\nThank you for using BookMyWash!\n\n- BookMyWash Team`
         });
-        console.log(`Booking confirmation email sent to ${email}`);
+        // Extra message after booking
+        await transporter.sendMail({
+          from: 'jebinrufuz@gmail.com',
+          to: email,
+          subject: 'Welcome to BookMyWash - Important Information',
+          text: `Hi,\n\nThank you for booking your laundry slot with BookMyWash!\n\nPlease arrive on time for your slot and bring your laundry items ready.\nIf you have any questions or need to reschedule, contact support.\n\nWe hope you have a great experience!\n\n- BookMyWash Team`
+        });
+        console.log(`Booking confirmation and info emails sent to ${email}`);
       } catch (e) {
-        console.error('Error sending booking confirmation email:', e);
+        console.error('Error sending booking confirmation/info email:', e);
       }
     }
     res.status(201).json({ message: 'Booking saved', booking });
@@ -231,39 +260,90 @@ app.post('/api/feedback', (req, res) => {
   }
 });
 
-// Scheduler: check every 5 minutes for bookings starting in 55-65 minutes
+// Scheduler: check every 2 minutes for all notification windows
 setInterval(async () => {
   const now = new Date();
-  const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
-  const fiftyFiveMinLater = new Date(now.getTime() + 55 * 60 * 1000);
-  // Find bookings not yet notified, upcoming, and starting in ~1 hour
   const bookings = await Booking.find({
-    notified: { $ne: true },
     status: 'upcoming',
     date: { $exists: true },
     timeSlot: { $exists: true }
   });
   for (const booking of bookings) {
-    // Parse booking date and slot start time
-    const slotStart = booking.timeSlot?.split('-')[0];
-    if (!slotStart) continue;
+    const slotStartStr = booking.timeSlot?.split('-')[0];
+    if (!slotStartStr) continue;
     const dateStr = booking.date;
     const dateParts = dateStr.split(', ');
-    const slotDate = new Date(`${dateParts[1]}, ${dateParts[2]} ${slotStart}`);
-    if (isNaN(slotDate.getTime())) continue;
-    // If slot is in 55-65 minutes from now
-    if (slotDate > fiftyFiveMinLater && slotDate <= oneHourLater) {
+    const slotStart = new Date(`${dateParts[1]}, ${dateParts[2]} ${slotStartStr}`);
+    if (isNaN(slotStart.getTime())) continue;
+    const diffMs = slotStart - now;
+    const diffMin = Math.round(diffMs / 60000);
+    // Before 1 hour
+    if (!booking.notified1h && diffMin <= 60 && diffMin > 58) {
       try {
-        await sendBookingNotification(booking);
-        booking.notified = true;
+        await sendCustomNotification(
+          booking,
+          'Laundry Slot Reminder - 1 hour left',
+          `Hi,\n\nThis is a reminder that your laundry slot is in 1 hour.\n\nDate: ${booking.date}\nTime: ${booking.timeSlot}\nMachine: ${booking.machine?.name || ''} (${booking.machine?.location || ''})\n\n- BookMyWash Team`
+        );
+        booking.notified1h = true;
         await booking.save();
-        console.log(`Notification sent to ${booking.email} for booking ${booking._id}`);
-      } catch (e) {
-        console.error('Error sending notification:', e);
-      }
+        console.log(`1h notification sent to ${booking.email}`);
+      } catch (e) { console.error(e); }
+    }
+    // Before 30 minutes
+    if (!booking.notified30m && diffMin <= 30 && diffMin > 28) {
+      try {
+        await sendCustomNotification(
+          booking,
+          'Laundry Slot Reminder - 30 minutes left',
+          `Hi,\n\nYour laundry slot is in 30 minutes.\n\nDate: ${booking.date}\nTime: ${booking.timeSlot}\nMachine: ${booking.machine?.name || ''} (${booking.machine?.location || ''})\n\n- BookMyWash Team`
+        );
+        booking.notified30m = true;
+        await booking.save();
+        console.log(`30m notification sent to ${booking.email}`);
+      } catch (e) { console.error(e); }
+    }
+    // Before 5 minutes
+    if (!booking.notified5m && diffMin <= 5 && diffMin > 3) {
+      try {
+        await sendCustomNotification(
+          booking,
+          'Laundry Slot Reminder - 5 minutes left',
+          `Hi,\n\nYour laundry slot is in 5 minutes.\n\nDate: ${booking.date}\nTime: ${booking.timeSlot}\nMachine: ${booking.machine?.name || ''} (${booking.machine?.location || ''})\n\n- BookMyWash Team`
+        );
+        booking.notified5m = true;
+        await booking.save();
+        console.log(`5m notification sent to ${booking.email}`);
+      } catch (e) { console.error(e); }
+    }
+    // After 30 minutes
+    if (!booking.notifiedAfter30m && diffMin <= -30 && diffMin > -32) {
+      try {
+        await sendCustomNotification(
+          booking,
+          'Laundry Slot Completed - 30 minutes ago',
+          `Hi,\n\nYour laundry slot was completed 30 minutes ago.\n\nDate: ${booking.date}\nTime: ${booking.timeSlot}\nMachine: ${booking.machine?.name || ''} (${booking.machine?.location || ''})\n\nHope you had a good experience!\n\n- BookMyWash Team`
+        );
+        booking.notifiedAfter30m = true;
+        await booking.save();
+        console.log(`After 30m notification sent to ${booking.email}`);
+      } catch (e) { console.error(e); }
+    }
+    // After 1 hour
+    if (!booking.notifiedAfter1h && diffMin <= -60 && diffMin > -62) {
+      try {
+        await sendCustomNotification(
+          booking,
+          'Laundry Slot Completed - 1 hour ago',
+          `Hi,\n\nYour laundry slot was completed 1 hour ago.\n\nDate: ${booking.date}\nTime: ${booking.timeSlot}\nMachine: ${booking.machine?.name || ''} (${booking.machine?.location || ''})\n\nThank you for using BookMyWash!\n\n- BookMyWash Team`
+        );
+        booking.notifiedAfter1h = true;
+        await booking.save();
+        console.log(`After 1h notification sent to ${booking.email}`);
+      } catch (e) { console.error(e); }
     }
   }
-}, 5 * 60 * 1000); // every 5 minutes
+}, 2 * 60 * 1000); // every 2 minutes
 
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
