@@ -25,6 +25,9 @@
             <span class="sr-only">Notifications</span>
           </button>
           <button id="free-wash-header-btn" class="button button-primary" style="margin-right: 1rem;">Free Wash (0)</button>
+          <button id="feedback-fab" style="background:#0ea5e9;color:#fff;border:none;border-radius:2rem;padding:0.5rem 1.5rem;font-size:1rem;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(14,165,233,0.13);margin-right:1rem;display:flex;align-items:center;gap:0.5rem;">
+            <span style="font-size:1.2rem;">&#9998;</span> Feedback
+          </button>
           <div class="dropdown">
             <button class="avatar-button" id="user-menu-button">
               <div class="avatar">
@@ -202,7 +205,21 @@
         </div>
       </div>
     </main>
-    
+
+    <!-- Feedback Modal -->
+    <div id="feedback-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.35);z-index:1300;align-items:center;justify-content:center;">
+      <div style="background:rgba(20,40,60,0.97);padding:2.2rem 1.7rem 1.7rem 1.7rem;border-radius:20px;max-width:370px;width:90vw;box-shadow:0 8px 32px rgba(14,165,233,0.18);display:flex;flex-direction:column;align-items:center;">
+        <button id="close-feedback-modal" style="position:absolute;top:1.2rem;right:1.7rem;background:none;border:none;font-size:1.5rem;color:#64748b;cursor:pointer;">&times;</button>
+        <h2 style="color:#0ea5e9;margin:0 0 0.7rem 0;font-size:1.35rem;font-weight:700;letter-spacing:0.5px;">We value your feedback</h2>
+        <p style="color:#cbd5e1;font-size:1rem;margin-bottom:1.2rem;text-align:center;max-width:90%;">Help us improve BookMyWash! Share your thoughts, suggestions, or report any issues below.</p>
+        <textarea id="feedback-text" rows="4" style="width:100%;border-radius:10px;border:1.5px solid #0ea5e9;background:rgba(255,255,255,0.95);color:#0f172a;padding:0.9rem 1rem;font-size:1.05rem;resize:none;box-shadow:0 1px 4px rgba(14,165,233,0.07);outline:none;transition:border 0.2s;" placeholder="Type your feedback here..."></textarea>
+        <div style="margin-top:1.2rem;width:100%;display:flex;justify-content:flex-end;">
+          <button id="submit-feedback" style="background:linear-gradient(90deg,#0ea5e9 60%,#0369a1 100%);color:#fff;border:none;border-radius:2rem;padding:0.6rem 2.2rem;font-size:1.08rem;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(14,165,233,0.13);transition:background 0.2s;">Submit</button>
+        </div>
+        <div id="feedback-message" style="margin-top:1rem;font-weight:500;display:none;text-align:center;"></div>
+      </div>
+    </div>
+
     <footer class="footer">
       <div class="container footer-content">
         <p class="copyright">
@@ -215,54 +232,6 @@
         </div>
       </div>
     </footer>
-
-    <!-- Help Modal -->
-    <div id="help-modal" class="modal">
-      <div class="modal-overlay"></div>
-      <div class="modal-container">
-        <div class="modal-header">
-          <h3>Help</h3>
-        </div>
-        <div class="modal-content">
-          <p>Need assistance? For booking issues, payment problems, or general questions, please mail to our support at jebinrufuz@gmail.com or visit the FAQ section in your student portal.</p>
-        </div>
-        <div class="modal-footer">
-          <button class="button button-primary" onclick="document.getElementById('help-modal').classList.remove('active')">Close</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Terms Modal -->
-    <div id="terms-modal" class="modal">
-      <div class="modal-overlay"></div>
-      <div class="modal-container">
-        <div class="modal-header">
-          <h3>Terms & Conditions</h3>
-        </div>
-        <div class="modal-content">
-          <p>By using BookMyWash, you agree to abide by campus laundry policies. Bookings are non-transferable. Misuse of machines or repeated no-shows may result in suspension of booking privileges. Please read the full terms on our website.</p>
-        </div>
-        <div class="modal-footer">
-          <button class="button button-primary" onclick="document.getElementById('terms-modal').classList.remove('active')">Close</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Privacy Modal -->
-    <div id="privacy-modal" class="modal">
-      <div class="modal-overlay"></div>
-      <div class="modal-container">
-        <div class="modal-header">
-          <h3>Privacy Policy</h3>
-        </div>
-        <div class="modal-content">
-          <p>Your personal information is used only for booking and managing laundry slots. We do not share your data with third parties. For more details, please review our privacy policy on the official website.</p>
-        </div>
-        <div class="modal-footer">
-          <button class="button button-primary" onclick="document.getElementById('privacy-modal').classList.remove('active')">Close</button>
-        </div>
-      </div>
-    </div>
 
     <script>
       document.getElementById('help-btn').onclick = function() {
@@ -280,6 +249,54 @@
           this.parentElement.parentElement.classList.remove('active');
         };
       });
+
+      // Feedback modal logic
+      const feedbackFab = document.getElementById('feedback-fab');
+      const feedbackModal = document.getElementById('feedback-modal');
+      const closeFeedbackModal = document.getElementById('close-feedback-modal');
+      feedbackFab.onclick = function() {
+        feedbackModal.style.display = 'flex';
+        document.getElementById('feedback-text').value = '';
+        document.getElementById('feedback-message').style.display = 'none';
+      };
+      closeFeedbackModal.onclick = function() {
+        feedbackModal.style.display = 'none';
+      };
+      feedbackModal.onclick = function(e) {
+        if (e.target === feedbackModal) feedbackModal.style.display = 'none';
+      };
+      // Feedback submit logic
+      document.getElementById('submit-feedback').onclick = async function() {
+        const text = document.getElementById('feedback-text').value.trim();
+        const msg = document.getElementById('feedback-message');
+        if (!text) {
+          msg.textContent = 'Please enter your feedback.';
+          msg.style.color = '#ef4444';
+          msg.style.display = 'block';
+          return;
+        }
+        try {
+          const res = await fetch('http://localhost:5000/api/feedback', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ feedback: text })
+          });
+          if (res.ok) {
+            msg.textContent = 'Thank you for your feedback!';
+            msg.style.color = '#22c55e';
+            msg.style.display = 'block';
+            document.getElementById('feedback-text').value = '';
+          } else {
+            msg.textContent = 'Error submitting feedback.';
+            msg.style.color = '#ef4444';
+            msg.style.display = 'block';
+          }
+        } catch (e) {
+          msg.textContent = 'Network error.';
+          msg.style.color = '#ef4444';
+          msg.style.display = 'block';
+        }
+      };
     </script>
   
 

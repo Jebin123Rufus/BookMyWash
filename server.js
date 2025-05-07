@@ -3,6 +3,8 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const Razorpay = require("razorpay");
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 const PORT = 5000;
@@ -165,6 +167,32 @@ app.post("/create-order", async (req, res) => {
       res.status(500).send(error);
     }
   });
+
+// Feedback storage (JSON file)
+const FEEDBACK_FILE = path.join(__dirname, 'feedbacks.json');
+
+// API endpoint to receive feedback and store in feedbacks.json
+app.post('/api/feedback', (req, res) => {
+  const { feedback } = req.body;
+  if (!feedback || typeof feedback !== 'string' || !feedback.trim()) {
+    return res.status(400).json({ message: 'Feedback required' });
+  }
+  let feedbacks = [];
+  try {
+    if (fs.existsSync(FEEDBACK_FILE)) {
+      feedbacks = JSON.parse(fs.readFileSync(FEEDBACK_FILE, 'utf8'));
+    }
+  } catch (e) {
+    feedbacks = [];
+  }
+  feedbacks.push({ feedback, createdAt: new Date().toISOString() });
+  try {
+    fs.writeFileSync(FEEDBACK_FILE, JSON.stringify(feedbacks, null, 2));
+    res.status(201).json({ message: 'Feedback received' });
+  } catch (e) {
+    res.status(500).json({ message: 'Error saving feedback', error: e });
+  }
+});
 
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
