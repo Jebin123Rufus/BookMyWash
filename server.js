@@ -25,6 +25,7 @@ mongoose.connect('mongodb://localhost:27017/bookmywash', {
 const userSchema = new mongoose.Schema({
   name: String,
   email: { type: String, unique: true },
+  freeWash: { type: Number, default: 0 } // Add freeWash field
 })
 
 const User = mongoose.model('User', userSchema, 'User-logins');
@@ -114,6 +115,40 @@ app.delete('/api/bookings/:id', async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: 'Error deleting booking', error: err });
   }
+});
+
+// API to get free wash count for a user
+app.get('/api/free-wash', async (req, res) => {
+  const { email } = req.query;
+  if (!email) return res.status(400).json({ message: 'Email required' });
+  const user = await User.findOne({ email });
+  if (!user) return res.status(404).json({ message: 'User not found' });
+  res.json({ freeWash: user.freeWash || 0 });
+});
+
+// API to increment free wash count for a user
+app.post('/api/free-wash/increment', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ message: 'Email required' });
+  const user = await User.findOneAndUpdate(
+    { email },
+    { $inc: { freeWash: 1 } },
+    { new: true }
+  );
+  if (!user) return res.status(404).json({ message: 'User not found' });
+  res.json({ freeWash: user.freeWash });
+});
+
+// API to decrement free wash count for a user
+app.post('/api/free-wash/decrement', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ message: 'Email required' });
+  const user = await User.findOne({ email });
+  if (!user) return res.status(404).json({ message: 'User not found' });
+  if ((user.freeWash || 0) <= 0) return res.status(400).json({ message: 'No free washes left' });
+  user.freeWash = (user.freeWash || 0) - 1;
+  await user.save();
+  res.json({ freeWash: user.freeWash });
 });
 
 app.post("/create-order", async (req, res) => {

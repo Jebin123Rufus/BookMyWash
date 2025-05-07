@@ -195,6 +195,86 @@ async function removeExpiredBookingsAndAlert(email) {
   }
 }
 
+// Free Wash header button logic
+const freeWashHeaderBtn = document.getElementById("free-wash-header-btn");
+async function fetchAndUpdateFreeWashHeaderBtn() {
+  const email = localStorage.getItem("email");
+  if (!email) return;
+  try {
+    const res = await fetch(`http://localhost:5000/api/free-wash?email=${encodeURIComponent(email)}&t=${Date.now()}`);
+    const data = await res.json();
+    const count = data.freeWash || 0;
+    freeWashHeaderBtn.textContent = `Free Wash (${count})`;
+  } catch {
+    freeWashHeaderBtn.textContent = 'Free Wash (0)';
+  }
+}
+if (freeWashHeaderBtn) {
+  freeWashHeaderBtn.style.display = 'inline-block';
+  freeWashHeaderBtn.textContent = 'Free Wash (0)';
+  fetchAndUpdateFreeWashHeaderBtn();
+  setInterval(fetchAndUpdateFreeWashHeaderBtn, 3000);
+  window.addEventListener("storage", fetchAndUpdateFreeWashHeaderBtn);
+  document.querySelector('.tab-button[data-tab="book"]').addEventListener('click', fetchAndUpdateFreeWashHeaderBtn);
+  window.addEventListener('focus', fetchAndUpdateFreeWashHeaderBtn);
+  freeWashHeaderBtn.addEventListener("click", async function () {
+    const email = localStorage.getItem("email");
+    if (!email) return;
+    // Check count from backend
+    const res = await fetch(`http://localhost:5000/api/free-wash?email=${encodeURIComponent(email)}&t=${Date.now()}`);
+    const data = await res.json();
+    const count = data.freeWash || 0;
+    if (count === 0) {
+      alert("You do not have a free wash available.");
+      return;
+    }
+    // Validate selections
+    const selectedDate = document.getElementById("selected-date").textContent;
+    const selectedTimeSlot = document.getElementById("time-slot-select").value;
+    const selectedMachine = document.querySelector(".machine-card.selected");
+    if (!selectedDate || selectedDate === "Select a date") {
+      alert("Please select a date before confirming your booking.");
+      return;
+    }
+    if (!selectedTimeSlot) {
+      alert("Please select a time slot before confirming your booking.");
+      return;
+    }
+    if (!selectedMachine) {
+      alert("Please select a machine before confirming your booking.");
+      return;
+    }
+    if (isSlotBooked(selectedMachine.dataset.id, selectedDate, selectedTimeSlot)) {
+      alert("This slot is already booked for the selected machine.");
+      return;
+    }
+    // Book for free
+    const newBooking = {
+      id: `b${Date.now()}`,
+      date: selectedDate,
+      timeSlot: selectedTimeSlot,
+      machine: {
+        id: selectedMachine.dataset.id,
+        name: selectedMachine.querySelector(".machine-card-title").textContent,
+        type: selectedMachine.querySelector(".icon").innerHTML.includes("rect") ? "washer" : "dryer",
+        location: selectedMachine.querySelector(".machine-card-description").textContent,
+      },
+      status: "upcoming",
+      email
+    };
+    await addBooking(newBooking);
+    // Decrement free wash count in backend
+    await fetch('http://localhost:5000/api/free-wash/decrement', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    fetchAndUpdateFreeWashHeaderBtn();
+    document.querySelector('.tab-button[data-tab="mybookings"]').click();
+    alert("Free wash booking successful!");
+  });
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   // Redirect to login page if not logged in
   if (!localStorage.getItem("isLoggedIn")) {
@@ -876,21 +956,82 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Free Wash header button logic
   const freeWashHeaderBtn = document.getElementById("free-wash-header-btn");
+  async function fetchAndUpdateFreeWashHeaderBtn() {
+    const email = localStorage.getItem("email");
+    if (!email) return;
+    try {
+      const res = await fetch(`http://localhost:5000/api/free-wash?email=${encodeURIComponent(email)}&t=${Date.now()}`); // prevent cache
+      const data = await res.json();
+      const count = data.freeWash || 0;
+      freeWashHeaderBtn.textContent = `Free Wash (${count})`;
+    } catch {
+      freeWashHeaderBtn.textContent = 'Free Wash (0)';
+    }
+  }
   if (freeWashHeaderBtn) {
     freeWashHeaderBtn.style.display = 'inline-block'; // Always visible
     freeWashHeaderBtn.textContent = 'Free Wash (0)'; // Initial count 0
-    function updateFreeWashHeaderBtn() {
+    fetchAndUpdateFreeWashHeaderBtn();
+    setInterval(fetchAndUpdateFreeWashHeaderBtn, 3000); // Poll every 3s for updates
+    window.addEventListener("storage", fetchAndUpdateFreeWashHeaderBtn);
+    document.querySelector('.tab-button[data-tab="book"]').addEventListener('click', fetchAndUpdateFreeWashHeaderBtn);
+    window.addEventListener('focus', fetchAndUpdateFreeWashHeaderBtn);
+    freeWashHeaderBtn.addEventListener("click", async function () {
       const email = localStorage.getItem("email");
-      let freeWashes = JSON.parse(localStorage.getItem("freeWashes") || '{}');
-      const count = freeWashes[email] || 0;
-      freeWashHeaderBtn.textContent = `Free Wash (${count})`;
-    }
-    updateFreeWashHeaderBtn();
-    window.addEventListener("storage", function (e) {
-      if (e.key === "freeWashes" || e.key === "freeWashes_update") updateFreeWashHeaderBtn();
+      if (!email) return;
+      // Check count from backend
+      const res = await fetch(`http://localhost:5000/api/free-wash?email=${encodeURIComponent(email)}&t=${Date.now()}`);
+      const data = await res.json();
+      const count = data.freeWash || 0;
+      if (count === 0) {
+        alert("You do not have a free wash available.");
+        return;
+      }
+      // Validate selections
+      const selectedDate = document.getElementById("selected-date").textContent;
+      const selectedTimeSlot = document.getElementById("time-slot-select").value;
+      const selectedMachine = document.querySelector(".machine-card.selected");
+      if (!selectedDate || selectedDate === "Select a date") {
+        alert("Please select a date before confirming your booking.");
+        return;
+      }
+      if (!selectedTimeSlot) {
+        alert("Please select a time slot before confirming your booking.");
+        return;
+      }
+      if (!selectedMachine) {
+        alert("Please select a machine before confirming your booking.");
+        return;
+      }
+      if (isSlotBooked(selectedMachine.dataset.id, selectedDate, selectedTimeSlot)) {
+        alert("This slot is already booked for the selected machine.");
+        return;
+      }
+      // Book for free
+      const newBooking = {
+        id: `b${Date.now()}`,
+        date: selectedDate,
+        timeSlot: selectedTimeSlot,
+        machine: {
+          id: selectedMachine.dataset.id,
+          name: selectedMachine.querySelector(".machine-card-title").textContent,
+          type: selectedMachine.querySelector(".icon").innerHTML.includes("rect") ? "washer" : "dryer",
+          location: selectedMachine.querySelector(".machine-card-description").textContent,
+        },
+        status: "upcoming",
+        email
+      };
+      await addBooking(newBooking);
+      // Decrement free wash count in backend
+      await fetch('http://localhost:5000/api/free-wash/decrement', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      fetchAndUpdateFreeWashHeaderBtn();
+      document.querySelector('.tab-button[data-tab="mybookings"]').click();
+      alert("Free wash booking successful!");
     });
-    document.querySelector('.tab-button[data-tab="book"]').addEventListener('click', updateFreeWashHeaderBtn);
-    window.addEventListener('focus', updateFreeWashHeaderBtn);
   }
 
 });

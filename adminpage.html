@@ -215,17 +215,31 @@
               container.appendChild(cancelBtn);
               document.body.appendChild(container);
               input.focus();
-              okBtn.onclick = function() {
+              okBtn.onclick = async function() {
                 const pwd = input.value;
                 if (pwd === 'ritlaundry') {
-                  // Grant free wash (store in localStorage for demo)
                   const email = booking.email;
-                  let freeWashes = JSON.parse(localStorage.getItem('freeWashes') || '{}');
-                  freeWashes[email] = (freeWashes[email] || 0) + 1;
-                  localStorage.setItem('freeWashes', JSON.stringify(freeWashes));
-                  // Broadcast change to all tabs
-                  localStorage.setItem('freeWashes_update', Date.now());
-                  alert('Free wash granted to ' + email);
+                  if (!email || !email.includes('@')) {
+                    alert('Invalid email detected: ' + email + '\nFree wash NOT granted.');
+                    document.body.removeChild(container);
+                    return;
+                  }
+                  // Call backend to increment free wash
+                  try {
+                    const res = await fetch('http://localhost:5000/api/free-wash/increment', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ email })
+                    });
+                    const data = await res.json();
+                    if (res.ok) {
+                      alert('Free wash granted to ' + email + '\nNew count: ' + data.freeWash);
+                    } else {
+                      alert('Error: ' + (data.message || 'Could not grant free wash.'));
+                    }
+                  } catch (err) {
+                    alert('Network error: Could not grant free wash.');
+                  }
                   document.body.removeChild(container);
                 } else {
                   alert('Password is wrong');
