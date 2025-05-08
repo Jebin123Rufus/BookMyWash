@@ -1034,6 +1034,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+  document.addEventListener('DOMContentLoaded', function() {
+    var helpBtn = document.getElementById('help-btn');
+    var termsBtn = document.getElementById('terms-btn');
+    var privacyBtn = document.getElementById('privacy-btn');
+    var helpModal = document.getElementById('help-modal');
+    var termsModal = document.getElementById('terms-modal');
+    var privacyModal = document.getElementById('privacy-modal');
+    if (helpBtn && helpModal) helpBtn.onclick = function() { helpModal.classList.add('active'); };
+    if (termsBtn && termsModal) termsBtn.onclick = function() { termsModal.classList.add('active'); };
+    if (privacyBtn && privacyModal) privacyBtn.onclick = function() { privacyModal.classList.add('active'); };
+    // Close modal when clicking overlay
+    document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+      overlay.onclick = function() {
+        this.parentElement.parentElement.classList.remove('active');
+      };
+    });
+  });
+
 });
 
 function initiatePayment() {

@@ -220,6 +220,34 @@
       </div>
     </div>
 
+    <!-- Help Modal -->
+    <div id="help-modal" class="modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:1000;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);">
+      <div class="modal-overlay"></div>
+      <div class="modal-container" style="background:#fff;padding:2rem 1.5rem;border-radius:16px;max-width:350px;width:90vw;box-shadow:0 4px 24px rgba(14,165,233,0.10);display:flex;flex-direction:column;align-items:center;position:relative;z-index:2;">
+        <h3 style="color:#0ea5e9;margin-top:0;">Help</h3>
+        <p style="color:#334155;">Need assistance? For booking issues, payment problems, or general questions, please mail to our support at jebinrufuz@gmail.com or visit the FAQ section in your student portal.</p>
+        <button onclick="document.getElementById('help-modal').classList.remove('active')" style="margin-top:1.5rem;background:#0ea5e9;color:#fff;border:none;border-radius:2rem;padding:0.5rem 1.5rem;font-size:1rem;font-weight:600;cursor:pointer;">Close</button>
+      </div>
+    </div>
+    <!-- Terms Modal -->
+    <div id="terms-modal" class="modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:1000;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);">
+      <div class="modal-overlay"></div>
+      <div class="modal-container" style="background:#fff;padding:2rem 1.5rem;border-radius:16px;max-width:350px;width:90vw;box-shadow:0 4px 24px rgba(14,165,233,0.10);display:flex;flex-direction:column;align-items:center;position:relative;z-index:2;">
+        <h3 style="color:#0ea5e9;margin-top:0;">Terms & Conditions</h3>
+        <p style="color:#334155;">By using BookMyWash, you agree to abide by campus laundry policies. Bookings are non-transferable. Misuse of machines or repeated no-shows may result in suspension of booking privileges. Please read the full terms on our website.</p>
+        <button onclick="document.getElementById('terms-modal').classList.remove('active')" style="margin-top:1.5rem;background:#0ea5e9;color:#fff;border:none;border-radius:2rem;padding:0.5rem 1.5rem;font-size:1rem;font-weight:600;cursor:pointer;">Close</button>
+      </div>
+    </div>
+    <!-- Privacy Modal -->
+    <div id="privacy-modal" class="modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:1000;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);">
+      <div class="modal-overlay"></div>
+      <div class="modal-container" style="background:#fff;padding:2rem 1.5rem;border-radius:16px;max-width:350px;width:90vw;box-shadow:0 4px 24px rgba(14,165,233,0.10);display:flex;flex-direction:column;align-items:center;position:relative;z-index:2;">
+        <h3 style="color:#0ea5e9;margin-top:0;">Privacy Policy</h3>
+        <p style="color:#334155;">Your personal information is used only for booking and managing laundry slots. We do not share your data with third parties. For more details, please review our privacy policy on the official website.</p>
+        <button onclick="document.getElementById('privacy-modal').classList.remove('active')" style="margin-top:1.5rem;background:#0ea5e9;color:#fff;border:none;border-radius:2rem;padding:0.5rem 1.5rem;font-size:1rem;font-weight:600;cursor:pointer;">Close</button>
+      </div>
+    </div>
+
     <footer class="footer">
       <div class="container footer-content">
         <p class="copyright">
@@ -235,18 +263,34 @@
 
     <script>
       document.getElementById('help-btn').onclick = function() {
-        document.getElementById('help-modal').classList.add('active');
+        var modal = document.getElementById('help-modal');
+        modal.style.display = 'flex';
+        modal.classList.add('active');
       };
       document.getElementById('terms-btn').onclick = function() {
-        document.getElementById('terms-modal').classList.add('active');
+        var modal = document.getElementById('terms-modal');
+        modal.style.display = 'flex';
+        modal.classList.add('active');
       };
       document.getElementById('privacy-btn').onclick = function() {
-        document.getElementById('privacy-modal').classList.add('active');
+        var modal = document.getElementById('privacy-modal');
+        modal.style.display = 'flex';
+        modal.classList.add('active');
       };
       // Close modal when clicking overlay
       document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
         overlay.onclick = function() {
-          this.parentElement.parentElement.classList.remove('active');
+          var modal = this.parentElement;
+          modal.style.display = 'none';
+          modal.classList.remove('active');
+        };
+      });
+      // Also close modal on close button
+      document.querySelectorAll('.modal .modal-container button').forEach(function(btn) {
+        btn.onclick = function() {
+          var modal = this.closest('.modal');
+          modal.style.display = 'none';
+          modal.classList.remove('active');
         };
       });
 
