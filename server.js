@@ -136,16 +136,9 @@ app.post('/api/bookings', async (req, res) => {
           subject: 'Booking Confirmed - BookMyWash',
           text: `Hi,\n\nYour laundry slot has been successfully booked!\n\nDate: ${date}\nTime: ${timeSlot}\nMachine: ${machine?.name || ''} (${machine?.location || ''})\n\nThank you for using BookMyWash!\n\n- BookMyWash Team`
         });
-        // Extra message after booking
-        await transporter.sendMail({
-          from: 'jebinrufuz@gmail.com',
-          to: email,
-          subject: 'Welcome to BookMyWash - Important Information',
-          text: `Hi,\n\nThank you for booking your laundry slot with BookMyWash!\n\nPlease arrive on time for your slot and bring your laundry items ready.\nIf you have any questions or need to reschedule, contact support.\n\nWe hope you have a great experience!\n\n- BookMyWash Team`
-        });
-        console.log(`Booking confirmation and info emails sent to ${email}`);
+        console.log(`Booking confirmation email sent to ${email}`);
       } catch (e) {
-        console.error('Error sending booking confirmation/info email:', e);
+        console.error('Error sending booking confirmation email:', e);
       }
     }
     res.status(201).json({ message: 'Booking saved', booking });
