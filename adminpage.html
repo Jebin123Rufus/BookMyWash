@@ -178,6 +178,14 @@
     function showResult(success, booking, message) {
       const resultScreen = document.getElementById('result-screen');
       if (success) {
+        // Remove booking from DB immediately after successful scan
+        if (booking && booking._id) {
+          fetch(`http://localhost:5000/api/bookings/${booking._id}`, {
+            method: 'DELETE'
+          }).then(() => {
+            // Optionally, you can show a toast or message here
+          });
+        }
         resultScreen.className = 'result-screen result-success';
         resultScreen.innerHTML = `
           <div class="tick">&#10004;</div>
