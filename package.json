@@ -1,9 +1,0 @@
-{
-  "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^5.1.0",
-    "mongoose": "^8.14.1",
-    "nodemailer": "^7.0.2",
-    "razorpay": "^2.9.6"
-  }
-}
