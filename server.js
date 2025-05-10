@@ -171,7 +171,10 @@ app.get('/api/all-bookings', async (req, res) => {
 // Delete a booking by _id
 app.delete('/api/bookings/:id', async (req, res) => {
   try {
-    await Booking.findByIdAndDelete(req.params.id);
+    const deleted = await Booking.findByIdAndDelete(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({ message: 'Booking not found or already deleted.' });
+    }
     res.json({ message: 'Booking deleted' });
   } catch (err) {
     res.status(500).json({ message: 'Error deleting booking', error: err });

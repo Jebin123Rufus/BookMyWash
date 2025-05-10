@@ -182,9 +182,13 @@
         if (booking && booking._id) {
           fetch(`http://localhost:5000/api/bookings/${booking._id}`, {
             method: 'DELETE'
-          }).then(() => {
-            // Optionally, you can show a toast or message here
-          });
+          })
+            .then(async (res) => {
+              if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                alert(data.message || 'Error deleting booking. It may have already been deleted.');
+              }
+            });
         }
         resultScreen.className = 'result-screen result-success';
         resultScreen.innerHTML = `
