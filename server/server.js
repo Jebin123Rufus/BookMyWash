@@ -1,3 +1,4 @@
+require('dotenv').config({ path: require('path').resolve(__dirname, '.env') });
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -10,8 +11,8 @@ const nodemailer = require('nodemailer');
 const app = express();
 const PORT = 5000;
 const razorpay = new Razorpay({
-    key_id: "rzp_test_DmCYM9dC5cVIgf",
-    key_secret: "jn25gcmlXcRlOlvE1qKK8Sdl",
+    key_id: process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_ID.replace(/"/g, ''),
+    key_secret: process.env.RAZORPAY_KEY_SECRET && process.env.RAZORPAY_KEY_SECRET.replace(/"/g, '')
   });
 
 app.use(bodyParser.json());
@@ -19,7 +20,7 @@ app.use(cors());
 app.use(express.json());
 
 // Connect to BookMyWash database
-mongoose.connect('mongodb+srv://JoshuaDaniell:ajdanie05@cluster0.ukilapt.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
+mongoose.connect(process.env.MONGODB_URI)
 
 // Mongoose schema and model for 'User-logins' in 'Users' collection
 const userSchema = new mongoose.Schema({
@@ -57,8 +58,8 @@ const Booking = mongoose.model('Booking', bookingSchema, 'bookings');
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'jebinrufuz@gmail.com', // <-- replace with your email
-    pass: 'aggz adsi nlgr xxpn'     // <-- replace with your app password
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
   }
 });
 
@@ -66,7 +67,7 @@ const transporter = nodemailer.createTransport({
 async function sendBookingNotification(booking) {
   if (!booking.email) return;
   const mailOptions = {
-    from: 'jebinrufuz@gmail.com', // <-- replace with your email
+    from: process.env.EMAIL_USER,
     to: booking.email,
     subject: 'Laundry Slot Reminder - BookMyWash',
     text: `Hi,\n\nThis is a reminder that your laundry slot is scheduled for:\n\nDate: ${booking.date}\nTime: ${booking.timeSlot}\nMachine: ${booking.machine?.name || ''} (${booking.machine?.location || ''})\n\nPlease be on time.\n\n- BookMyWash Team`
@@ -78,7 +79,7 @@ async function sendBookingNotification(booking) {
 async function sendCustomNotification(booking, subject, text) {
   if (!booking.email) return;
   await transporter.sendMail({
-    from: 'jebinrufuz@gmail.com',
+    from: process.env.EMAIL_USER,
     to: booking.email,
     subject,
     text
@@ -128,7 +129,7 @@ app.post('/api/bookings', async (req, res) => {
       try {
         // Confirmation email (immediately after booking)
         await transporter.sendMail({
-          from: 'jebinrufuz@gmail.com', // <-- replace with your email
+          from: process.env.EMAIL_USER,
           to: email,
           subject: 'Booking Confirmed - BookMyWash',
           text: `Hi,\n\nYour laundry slot has been successfully booked!\n\nDate: ${date}\nTime: ${timeSlot}\nMachine: ${machine?.name || ''} (${machine?.location || ''})\n\nThank you for using BookMyWash!\n\n- BookMyWash Team`
