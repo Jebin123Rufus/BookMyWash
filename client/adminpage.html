@@ -183,7 +183,7 @@
       if (success) {
         // Remove booking from DB immediately after successful scan
         if (booking && booking._id) {
-          fetch(`http://localhost:5000/api/bookings/${booking._id}`, {
+          fetch((window.API_URL || 'https://bookmywash-1.onrender.com') + `/api/bookings/${booking._id}`, {
             method: 'DELETE'
           })
             .then(async (res) => {
@@ -241,7 +241,7 @@
                   }
                   // Call backend to increment free wash
                   try {
-                    const res = await fetch('http://localhost:5000/api/free-wash/increment', {
+                    const res = await fetch((window.API_URL || 'https://bookmywash-1.onrender.com') + '/api/free-wash/increment', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ email })
@@ -299,7 +299,7 @@
         return;
       }
       // Send to backend for verification
-      fetch('http://localhost:5000/api/all-bookings', {
+      fetch((window.API_URL || 'https://bookmywash-1.onrender.com') + '/api/all-bookings', {
         method: 'GET'
       })
       .then(res => res.json())

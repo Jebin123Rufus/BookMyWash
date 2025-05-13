@@ -1,10 +1,13 @@
+// Helper to get API base URL
+const API_URL = (typeof window !== 'undefined' && window.API_URL) || 'https://bookmywash-1.onrender.com';
+
 // Booking data
 let bookings = [];
 
 // Fetch bookings from backend on load
 async function fetchBookings(email) {
   try {
-    const res = await fetch(`http://localhost:5000/api/bookings?email=${encodeURIComponent(email)}`);
+    const res = await fetch(`${API_URL}/api/bookings?email=${encodeURIComponent(email)}`);
     bookings = await res.json();
     generateBookingCards();
   } catch (err) {
@@ -18,7 +21,7 @@ let allBookings = [];
 
 async function fetchAllBookings() {
   try {
-    const res = await fetch('http://localhost:5000/api/all-bookings');
+    const res = await fetch(`${API_URL}/api/all-bookings`);
     allBookings = await res.json();
   } catch (err) {
     allBookings = [];
@@ -120,7 +123,7 @@ function generateBookingCards() {
 // Add booking to backend
 async function addBooking(booking) {
   // Save to backend (do not send id)
-  const res = await fetch('http://localhost:5000/api/bookings', {
+  const res = await fetch(`${API_URL}/api/bookings`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(booking)
@@ -138,7 +141,7 @@ async function addBooking(booking) {
     email: booking.email
   });
   // Update booking with QR data
-  await fetch(`http://localhost:5000/api/bookings/${bookingId}`, {
+  await fetch(`${API_URL}/api/bookings/${bookingId}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ qrData })
@@ -184,7 +187,7 @@ async function removeExpiredBookingsAndAlert(email) {
     alert(`The following bookings have expired and will be removed:\n${msg}`);
     // Remove from DB
     for (const b of expired) {
-      await fetch(`http://localhost:5000/api/bookings/${b._id}`, { method: 'DELETE' });
+      await fetch(`${API_URL}/api/bookings/${b._id}`, { method: 'DELETE' });
       alertedIds.push(b._id);
     }
     // Remove from local array
@@ -201,7 +204,7 @@ async function fetchAndUpdateFreeWashHeaderBtn() {
   const email = localStorage.getItem("email");
   if (!email) return;
   try {
-    const res = await fetch(`http://localhost:5000/api/free-wash?email=${encodeURIComponent(email)}&t=${Date.now()}`);
+    const res = await fetch(`${API_URL}/api/free-wash?email=${encodeURIComponent(email)}&t=${Date.now()}`);
     const data = await res.json();
     const count = data.freeWash || 0;
     freeWashHeaderBtn.textContent = `Free Wash (${count})`;
@@ -221,7 +224,7 @@ if (freeWashHeaderBtn) {
     const email = localStorage.getItem("email");
     if (!email) return;
     // Check count from backend
-    const res = await fetch(`http://localhost:5000/api/free-wash?email=${encodeURIComponent(email)}&t=${Date.now()}`);
+    const res = await fetch(`${API_URL}/api/free-wash?email=${encodeURIComponent(email)}&t=${Date.now()}`);
     const data = await res.json();
     const count = data.freeWash || 0;
     if (count === 0) {
@@ -264,7 +267,7 @@ if (freeWashHeaderBtn) {
     };
     await addBooking(newBooking);
     // Decrement free wash count in backend
-    await fetch('http://localhost:5000/api/free-wash/decrement', {
+    await fetch(`${API_URL}/api/free-wash/decrement`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email })
@@ -960,7 +963,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const email = localStorage.getItem("email");
     if (!email) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/free-wash?email=${encodeURIComponent(email)}&t=${Date.now()}`); // prevent cache
+      const res = await fetch(`${API_URL}/api/free-wash?email=${encodeURIComponent(email)}&t=${Date.now()}`); // prevent cache
       const data = await res.json();
       const count = data.freeWash || 0;
       freeWashHeaderBtn.textContent = `Free Wash (${count})`;
@@ -980,7 +983,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const email = localStorage.getItem("email");
       if (!email) return;
       // Check count from backend
-      const res = await fetch(`http://localhost:5000/api/free-wash?email=${encodeURIComponent(email)}&t=${Date.now()}`);
+      const res = await fetch(`${API_URL}/api/free-wash?email=${encodeURIComponent(email)}&t=${Date.now()}`);
       const data = await res.json();
       const count = data.freeWash || 0;
       if (count === 0) {
@@ -1023,7 +1026,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       };
       await addBooking(newBooking);
       // Decrement free wash count in backend
-      await fetch('http://localhost:5000/api/free-wash/decrement', {
+      await fetch(`${API_URL}/api/free-wash/decrement`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })

@@ -18,6 +18,7 @@ const razorpay = new Razorpay({
 app.use(bodyParser.json());
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, '../client')));
 
 // Connect to BookMyWash database
 mongoose.connect(process.env.MONGODB_URI)
@@ -340,7 +341,7 @@ setInterval(async () => {
 }, 2 * 60 * 1000); // every 2 minutes
 
 app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+    console.log(`Server running at https://bookmywash-1.onrender.com`);
 });
 
 app.get('/', (req, res) => {

@@ -11,7 +11,7 @@ document.getElementById("loginForm").addEventListener("submit", async function (
     // Allow admin email as exception
     if (email === "adminrit@gmail.com" && name.toLowerCase() === "admin") {
       try {
-        const res = await fetch("http://localhost:5000/api/login", {
+        const res = await fetch((window.API_URL || 'https://bookmywash-1.onrender.com') + "/api/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name, email }),
@@ -32,7 +32,7 @@ document.getElementById("loginForm").addEventListener("submit", async function (
       }
     } else if (regex.test(email)) {
       try {
-        const res = await fetch("http://localhost:5000/api/login", {
+        const res = await fetch((window.API_URL || 'https://bookmywash-1.onrender.com') + "/api/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name, email }),
