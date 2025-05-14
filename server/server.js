@@ -16,14 +16,7 @@ const razorpay = new Razorpay({
   });
 
 app.use(bodyParser.json());
-app.use(cors({
-  origin: [
-    'https://bookmywash-1.onrender.com',
-    'https://YOUR-NEOCITIES-SITE.neocities.org', // <-- Replace with your actual neocities site URL
-    'http://localhost:5000'
-  ],
-  credentials: true
-}));
+app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../client')));
 
