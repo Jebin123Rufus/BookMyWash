@@ -316,8 +316,8 @@ setInterval(async () => {
       try {
         await sendCustomNotification(
           booking,
-          'Laundry Slot Completed - 30 minutes ago',
-          `Hi,\n\nYour laundry slot was completed 30 minutes ago.\n\nDate: ${booking.date}\nTime: ${booking.timeSlot}\nMachine: ${booking.machine?.name || ''} (${booking.machine?.location || ''})\n\nHope you had a good experience!\n\n- BookMyWash Team`
+          'BookMyWash - Your Washing will be completed in 30 minutes',
+          `Hi,\n\nYour laundry slot will be completed in 30 minutes.\n\nDate: ${booking.date}\nTime: ${booking.timeSlot}\nMachine: ${booking.machine?.name || ''} (${booking.machine?.location || ''})\n\nHope you had a good experience!\n\n- BookMyWash Team`
         );
         booking.notifiedAfter30m = true;
         await booking.save();
@@ -329,8 +329,8 @@ setInterval(async () => {
       try {
         await sendCustomNotification(
           booking,
-          'Laundry Slot Completed - 1 hour ago',
-          `Hi,\n\nYour laundry slot was completed 1 hour ago.\n\nDate: ${booking.date}\nTime: ${booking.timeSlot}\nMachine: ${booking.machine?.name || ''} (${booking.machine?.location || ''})\n\nThank you for using BookMyWash!\n\n- BookMyWash Team`
+          'BookMyWash - Your Washing has been completed!!',
+          `Hi,\n\nYour laundry slot has been completed ,You can collect your washed clothes now.\n\nDate: ${booking.date}\nTime: ${booking.timeSlot}\nMachine: ${booking.machine?.name || ''} (${booking.machine?.location || ''})\n\nThank you for using BookMyWash!\n\n- BookMyWash Team`
         );
         booking.notifiedAfter1h = true;
         await booking.save();
